@@ -1,0 +1,43 @@
+{
+    code: "pipesegment",
+    class: "pipelinemod.Blocks.PipeSegment",
+    entityClass: "pipelinemod.BE.PipeSegment",
+    blockmaterial: "Metal",
+    creativeinventory: {
+        general: [
+            "*"
+        ]
+    },
+    entityBehaviors: [{ name: "pipelinemod.BEB.PipeSegment" }],
+    shape: {
+        base: "pipelinemod:pipehub"
+    },
+    shapeInventory: {
+        base: "pipelinemod:pipesection-inventory"
+    },
+    lightAbsorption: 1,
+    // Only absorb *some* light
+    //  faceCullMode: "nevercull",
+    sideSolidOpaqueAo: {
+        all: false
+    },
+    canChisel: false,
+    randomize: false,
+    rainpermeable: true,
+    replaceable: 6000,
+    AllowSpawnCreatureGroups: [],
+    collisionSelectionBox: {
+        x1: 0.375,
+        y1: 0.375,
+        z1: 0.375,
+        x2: 0.6875,
+        y2: 0.6875,
+        z2: 0.6875
+    },
+    sounds: {
+        "place": "game:block/chute",
+        "break": "game:block/chute",
+        "hit": "game:block/chute",
+        "walk": "game:walk/stone"
+    }
+}

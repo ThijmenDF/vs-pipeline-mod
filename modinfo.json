@@ -1,0 +1,14 @@
+{
+    "$schema": "https://moddbcdn.vintagestory.at/schema/modinfo.latest.json",
+    "type": "Code",
+    "modid": "pipelinemod",
+    "name": "Pipeline Mod",
+    "authors": [
+        "ThijmenDF"
+    ],
+    "description": "Pipelines and water pressure",
+    "version": "0.0.1",
+    "dependencies": {
+        "game": "1.21.0"
+    }
+}

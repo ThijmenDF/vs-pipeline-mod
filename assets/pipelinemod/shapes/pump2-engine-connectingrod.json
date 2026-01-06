@@ -1,0 +1,47 @@
+{
+	"editor": {
+		"collapsedPaths": "Root/SecondaryShaft,Root/AxlePrimaryGear",
+		"allAngles": true,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"plainoak": "game:block/wood/plainoak"
+	},
+	"elements": [
+		{
+			"name": "Arm",
+			"from": [ 8.5, 7.25, 7.5 ],
+			"to": [ 9.0, 8.75, 15.5 ],
+			"rotationOrigin": [ 8.5, 8.0, 8.25 ],
+			"faces": {
+				"north": { "texture": "#plainoak", "uv": [ 2.0, 14.0, 2.5, 15.5 ] },
+				"east": { "texture": "#plainoak", "uv": [ 5.5, 11.5, 13.5, 13.0 ] },
+				"south": { "texture": "#plainoak", "uv": [ 14.0, 2.5, 14.5, 4.0 ] },
+				"west": { "texture": "#plainoak", "uv": [ 5.5, 8.0, 13.5, 9.5 ] },
+				"up": { "texture": "#plainoak", "uv": [ 3.0, 5.0, 3.5, 13.0 ] },
+				"down": { "texture": "#plainoak", "uv": [ 3.0, 4.0, 3.5, 12.0 ] }
+			},
+			"children": [
+				{
+					"name": "Arm2",
+					"from": [ -1.5, 0.0, 0.0 ],
+					"to": [ -1.0, 1.5, 8.0 ],
+					"rotationOrigin": [ -1.0, 5.5, 7.2 ],
+					"faces": {
+						"north": { "texture": "#plainoak", "uv": [ 8.0, 11.0, 8.5, 12.5 ] },
+						"east": { "texture": "#plainoak", "uv": [ 2.0, 0.5, 10.0, 2.0 ] },
+						"south": { "texture": "#plainoak", "uv": [ 13.0, 11.5, 13.5, 13.0 ] },
+						"west": { "texture": "#plainoak", "uv": [ 4.5, 6.0, 12.5, 7.5 ] },
+						"up": { "texture": "#plainoak", "uv": [ 4.0, 1.0, 4.5, 9.0 ] },
+						"down": { "texture": "#plainoak", "uv": [ 3.5, 7.0, 4.0, 15.0 ] }
+					}
+				}
+			]
+		}
+	],
+	"animations": []
+}

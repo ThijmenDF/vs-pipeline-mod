@@ -1,0 +1,46 @@
+{
+    code: "pipepumptank",
+    class: "pipelinemod.Blocks.PipePumpTank",
+    entityClass: "pipelinemod.BE.PipePumpTank",
+    creativeinventory: {},
+    behaviors: [
+        {name: "HorizontalOrientable"},
+    ],
+    entityBehaviors: [
+        { name: "pipelinemod.BEB.PipePumpTank" },
+    ],
+    variantgroups: [
+        { code:"side", loadFromProperties: "abstract/horizontalorientation" }
+    ],
+    shapebytype: {
+        "*-north": {
+            base: "pipelinemod:pump2-tank",
+            rotateY: 0,
+        },
+        "*-east": {
+            base: "pipelinemod:pump2-tank",
+            rotateY: 270,
+        },
+        "*-south": {
+            base: "pipelinemod:pump2-tank",
+            rotateY: 180,
+        },
+        "*-west": {
+            base: "pipelinemod:pump2-tank",
+            rotateY: 90,
+        },
+    },
+    blockmaterial: "Metal",
+    replaceable: 100,
+    materialDensity: 600,
+    resistance: 2,
+    lightAbsorption: 0,
+    sideSolidOpaqueAo: {
+        all: false
+    },
+    heldTpIdleAnimation: "holdbothhandslarge",
+    heldRightReadyAnimation: "heldblockready",
+    heldTpUseAnimation: "twohandplaceblock",
+    canChisel: false,
+    AllowSpawnCreatureGroups: [],
+}

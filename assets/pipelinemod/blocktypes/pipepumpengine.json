@@ -1,0 +1,72 @@
+{
+    code: "pipepump",
+    class: "pipelinemod.Blocks.PipePumpEngine",
+    entityClass: "pipelinemod.BE.PipePumpEngine",
+    creativeinventory: {
+        general: ["*-north"],
+//        pipelines: ["*-north"]
+    },
+    attributes: {
+        mechanicalPower: {
+            renderer: "pipelineengine"
+        }
+    },
+    behaviors: [
+        {name: "HorizontalOrientable"},
+    ],
+    entityBehaviors: [
+        { name: "pipelinemod.BEB.PipePumpEngine" }
+    ],
+    variantgroups: [
+        { code:"side", loadFromProperties: "abstract/horizontalorientation" }
+    ],
+    shapebytype: {
+        "*-north": {
+            base: "pipelinemod:pump2-engine-frame",
+            rotateY: 0,
+        },
+        "*-east": {
+            base: "pipelinemod:pump2-engine-frame",
+            rotateY: 270,
+        },
+        "*-south": {
+            base: "pipelinemod:pump2-engine-frame",
+            rotateY: 180,
+        },
+        "*-west": {
+            base: "pipelinemod:pump2-engine-frame",
+            rotateY: 90,
+        },
+    },
+    blockmaterial: "Wood",
+    replaceable: 100,
+    materialDensity: 600,
+    resistance: 2,
+    lightAbsorption: 0,
+    sideSolidOpaqueAo: {
+        all: false
+    },
+    shapeInventory: {
+        base: "pipelinemod:pump2-inventory"
+    },
+    groundTransform: {
+        origin: { x: 0.5, y: 0, z: 0 },
+        scale: 2.7
+    },
+    guiTransform: {
+        translation: { x: 0, y: 8, z: 0 },
+        origin: { x: 0.5, y: 0, z: 0 },
+        scale: 0.76
+    },
+    tpHandTransform: {
+        translation: { x: 0, y: 0.5, z: 0 },
+        rotation: { x: 15, y: 10, z: -90 },
+        origin: { x: -0.05, y: 0.05, z: 0.15 },
+        scale: 0.5
+    },
+    heldTpIdleAnimation: "holdbothhandslarge",
+    heldRightReadyAnimation: "heldblockready",
+    heldTpUseAnimation: "twohandplaceblock",
+    canChisel: false,
+    AllowSpawnCreatureGroups: [],
+}

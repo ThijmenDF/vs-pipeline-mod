@@ -1,0 +1,45 @@
+{
+    code: "pipeinlet",
+    class: "pipelinemod.Blocks.PipeInlet",
+    blockmaterial: "Metal",
+    creativeinventory: {
+        general: [
+            "*"
+        ]
+    }, 
+    behaviors: [
+        {name: "pipelinemod.BB.PipeInlet"},
+    ],
+    entityBehaviors: [{ name: "pipelinemod.BEB.PipeInlet" }],
+    shape: {
+        base: "pipelinemod:pipeinlet"
+    },
+    shapeInventory: {
+        base: "pipelinemod:pipeinlet"
+    },
+    lightAbsorption: 1,
+    // Only absorb *some* light
+    //  faceCullMode: "nevercull",
+    sideSolidOpaqueAo: {
+        all: false
+    },
+    canChisel: false,
+    randomize: false,
+    rainpermeable: true,
+    replaceable: 6000,
+    AllowSpawnCreatureGroups: [],
+    collisionSelectionBox: {
+        x1: 0,
+        y1: 0,
+        z1: 0,
+        x2: 1,
+        y2: 1,
+        z2: 1
+    },
+    sounds: {
+        "place": "game:block/chute",
+        "break": "game:block/chute",
+        "hit": "game:block/chute",
+        "walk": "game:walk/stone"
+    }
+}
