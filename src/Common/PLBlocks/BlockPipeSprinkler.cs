@@ -3,7 +3,7 @@ using Vintagestory.API.MathTools;
 
 namespace PipelineMod.Common.PLBlocks;
 
-public class PipeSprinkler : BlockPipelineBase
+public class BlockPipeSprinkler : BlockPipelineBase
 {
     public override void OnLoaded(ICoreAPI api)
     {

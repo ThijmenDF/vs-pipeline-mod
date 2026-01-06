@@ -1,11 +1,11 @@
-﻿using PipelineMod.Common.PLBlockEntity;
-using PipelineMod.Common.PLBlockBehavior;
+﻿using PipelineMod.Common.PLBlockBehavior;
+using PipelineMod.Common.PLBlockEntity;
 using PipelineMod.Common.PLBlockEntityBehavior;
 using PipelineMod.Common.PLBlockEntityRenderer;
 using PipelineMod.Common.PLBlocks;
 using Vintagestory.API.Client;
-using Vintagestory.API.Server;
 using Vintagestory.API.Common;
+using Vintagestory.API.Server;
 using Vintagestory.GameContent.Mechanics;
 
 namespace PipelineMod;
@@ -18,11 +18,11 @@ public class PipelineModModSystem : ModSystem
     {
         var id = Mod.Info.ModID ?? "pipelinemod";
 
-        api.RegisterBlockClass(id + ".Blocks.PipeSegment", typeof(PipeSegment));
+        api.RegisterBlockClass(id + ".Blocks.PipeSegment", typeof(BlockPipeSegment));
         api.RegisterBlockClass(id + ".Blocks.PipePumpEngine", typeof(BlockPipePumpEngine));
         api.RegisterBlockClass(id + ".Blocks.PipePumpTank", typeof(BlockPipePumpTank));
-        api.RegisterBlockClass(id + ".Blocks.PipeInlet", typeof(PipeInlet));
-        api.RegisterBlockClass(id + ".Blocks.PipeSprinkler", typeof(PipeSprinkler));
+        api.RegisterBlockClass(id + ".Blocks.PipeInlet", typeof(BlockPipeInlet));
+        api.RegisterBlockClass(id + ".Blocks.PipeSprinkler", typeof(BlockPipeSprinkler));
         
         api.RegisterBlockEntityClass(id + ".BE.PipePumpEngine", typeof (BlockEntityPipePumpEngine));
         api.RegisterBlockEntityClass(id + ".BE.PipePumpTank", typeof (BlockEntityPipePumpTank));

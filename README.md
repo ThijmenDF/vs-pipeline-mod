@@ -16,3 +16,9 @@ To-do's:
 * Linking up pumps.
 * Multiple pumps from a single source.
 * Loading/unloading of chunks, sections on chunk boundaries.
+
+
+Note to self:
+.tfedit
+.tfedit
+.tfeddiiitittttttttttttt

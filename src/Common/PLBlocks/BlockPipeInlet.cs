@@ -1,13 +1,10 @@
 #nullable disable
-using PipelineMod.Common.PLBlockEntity;
-using PipelineMod.Common.PLBlockEntityBehavior;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
-using Vintagestory.GameContent;
 
 namespace PipelineMod.Common.PLBlocks;
 
-internal class PipeInlet : BlockPipelineBase
+internal class BlockPipeInlet : BlockPipelineBase
 {
     public override void OnLoaded(ICoreAPI api)
     {
