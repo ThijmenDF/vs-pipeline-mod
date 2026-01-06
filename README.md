@@ -8,10 +8,11 @@ Current parts:
 * Water drain (inlet)
 
 Ideas: 
-* Pipe casting / forming
+* Pipe casting / forming.
 * Compatibility with other mods? (how?)
 
 To-do's:
-* Detect pipe content (water, lava, steam etc)
-* Linking up pumps
-* Multiple pumps from a single source
+* Detect pipe content (water, lava, steam etc).
+* Linking up pumps.
+* Multiple pumps from a single source.
+* Loading/unloading of chunks, sections on chunk boundaries.

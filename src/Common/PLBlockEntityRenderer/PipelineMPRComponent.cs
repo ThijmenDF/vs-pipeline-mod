@@ -1,10 +1,17 @@
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
-using Vintagestory.GameContent.Mechanics;
 
 namespace PipelineMod.Common.PLBlockEntityRenderer;
 
+/**
+ * Given the asset location and base block for textures, this component loads the shape into the buffer.
+ *
+ * You also need to provide callback functions for transformation on the X and Z axis, as well as the 'centre' point
+ * An optional translation function can also be provided.
+ *
+ * UseInitialTransform was taken from the source (CreativeRotorRenderer)
+ */
 public class PipelineMPRComponent
 {
     public readonly MeshRef Mesh;

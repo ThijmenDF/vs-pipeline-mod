@@ -16,6 +16,7 @@ public class PipelineMPRenderer : MechBlockRenderer
 
     public PipelineMPRenderer(ICoreClientAPI capi, MechanicalPowerMod mechanicalPowerMod, Block textureSourceBlock, CompositeShape shapeLoc) : base(capi, mechanicalPowerMod)
     {
+        // Main axle, centered.
         components.Add(
             new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump2-engine-primarygear.json", 42000)
             {
@@ -26,10 +27,12 @@ public class PipelineMPRenderer : MechBlockRenderer
             }
         );
 
+        // This is the 'location' of the 2nd axle from the NW corner. (in model space). Y is 0.5
         const float xN = 0.0625f;
         const float zN = 0.78125f;
         var facing = BlockFacing.FromCode(textureSourceBlock.Variant["side"]);
         
+        // Shifting the location to account for block orientation.
         var secondaryGearAxis1 = facing.Code switch
         {
             "north" => new Vec3f(xN, 0.5f, zN),
@@ -38,12 +41,8 @@ public class PipelineMPRenderer : MechBlockRenderer
             "east" =>  new Vec3f(1f - zN, 0.5f, xN),
             _      =>  new Vec3f(xN, 0.5f, zN)
         };
-
-        // Optional: log this to confirm
-        capi.Logger.Notification(
-            $"Side={facing.Code}, secondaryGearAxis=({secondaryGearAxis1.X:0.000},{secondaryGearAxis1.Y:0.000},{secondaryGearAxis1.Z:0.000})"
-        );
         
+        // Secondary axle, offset
         components.Add(
             new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump2-engine-secondarygear.json", 42000)
             {
@@ -54,6 +53,7 @@ public class PipelineMPRenderer : MechBlockRenderer
             }
         );
 
+        // The primary 'slider' aka piston rod
         const float sliderTravel = 4.5f / 16f;
         
         components.Add(
@@ -72,6 +72,7 @@ public class PipelineMPRenderer : MechBlockRenderer
             }
         );
         
+        // The connecting rod between piston rod and secondary axle gear.
         components.Add(
             new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump2-engine-connectingrod.json", 42000)
             {
@@ -94,6 +95,7 @@ public class PipelineMPRenderer : MechBlockRenderer
         
     }
 
+    // Runs the transformation code of each component. Uses the primary axle to figure out which way things are located.
     protected override void UpdateLightAndTransformMatrix(int index, Vec3f distToCamera, float rotRad, IMechanicalPowerRenderable dev)
     {
         var rot1 = dev.AngleRad;
@@ -137,12 +139,14 @@ public class PipelineMPRenderer : MechBlockRenderer
 
         if (quantityBlocks <= 0) return;
 
+        // Calls the client tick on the devices as they want to do stuff each frame.
         foreach (var device in renderedDevices.Values)
         {
             // this is the block behavior
             (device as IPipelineMPPumpEngineRenderable)?.ClientTick(deltaTime);
         }
 
+        // Calls the render method for each component of this block.
         foreach (var component in components)
         {
             component.Buffer.Count = quantityBlocks * 20;
@@ -153,6 +157,7 @@ public class PipelineMPRenderer : MechBlockRenderer
         }
     }
 
+    // Below here are default render code from the creative rotor renderer.
     private void TransformMatrix(Vec3f distToCamera, float rotX, float rotZ, Vec3f axis)
     {
         Mat4f.Identity(tmpMat);
@@ -227,6 +232,7 @@ public class PipelineMPRenderer : MechBlockRenderer
     {
         base.Dispose();
         
+        // Also dispose each component.
         foreach (var component in components)
         {
             component.Mesh.Dispose();

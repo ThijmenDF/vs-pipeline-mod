@@ -6,7 +6,7 @@
     "authors": [
         "ThijmenDF"
     ],
-    "description": "Pipelines and water pressure",
+    "description": "Pipelines, pumps, sprinklers and more!",
     "version": "0.0.1",
     "dependencies": {
         "game": "1.21.0"
