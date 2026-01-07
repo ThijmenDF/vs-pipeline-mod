@@ -74,6 +74,7 @@ public class PipeMod : ModSystem, IRenderer
         api.Event.SaveGameLoaded += Event_GameWorldLoad;
         api.Event.GameWorldSave += Event_GameWorldSave;
         api.Event.ChunkDirty += Event_ChunkDirty;
+        api.Event.ChunkColumnLoaded += Event_ChunkLoaded;
     }
 
     /**
@@ -129,6 +130,7 @@ public class PipeMod : ModSystem, IRenderer
 
         network.fullyLoaded = network.TestFullyLoaded(Api);
         allNetworksFullyLoaded &= network.fullyLoaded;
+        Api.Logger.Notification("Network " + network.networkId + " fully loaded: " + network.fullyLoaded + ", allFullLoaded: "  + allNetworksFullyLoaded);
     }
 
     public PipeNetwork CreateNetwork()
@@ -166,6 +168,8 @@ public class PipeMod : ModSystem, IRenderer
         if (allNetworksFullyLoaded || reason == EnumChunkDirtyReason.MarkedDirty)
             return;
         
+        Api.Logger.Notification("ChunkDirty because:" + reason);
+        
         allNetworksFullyLoaded = true;
         nowFullyLoaded.Clear();
 
@@ -187,9 +191,13 @@ public class PipeMod : ModSystem, IRenderer
             CalculateDistances(nowFullyLoaded[i]);
         }
     }
-    
-    // Render stuff
-    //private void OnLoaded() =>
+
+    private void Event_ChunkLoaded(Vec2i columnCoord, IWorldChunk[] chunks)
+    {
+        Api.Logger.Notification("Chunk column loaded: " + columnCoord);
+        
+        // TestFullyLoaded();
+    }
 
     public void RebuildNetwork(PipeNetwork network, IPipelineNode? startNode = null)
     {

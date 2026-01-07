@@ -16,6 +16,8 @@ To-do's:
 * Linking up pumps.
 * Multiple pumps from a single source.
 * Loading/unloading of chunks, sections on chunk boundaries.
+* Fix network distance checks when pipes are split
+* Fix replaceable setting
 
 
 Note to self:

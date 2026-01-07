@@ -10,7 +10,7 @@ using Vintagestory.API.MathTools;
 
 namespace PipelineMod.Common.PLBlockEntityBehavior;
 
-public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBase(blockentity), IPipelineDevice
+public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBase(blockentity), IPipelineDevice, IPipelineTicks
 {
     
     public IPipelineSource? ClosestInlet { get; set; }

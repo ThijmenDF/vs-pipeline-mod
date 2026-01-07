@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using PipelineMod.Common.Mechanics;
 using PipelineMod.Common.Mechanics.Interfaces;
-using PipelineMod.Common.PLBlocks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
@@ -121,6 +120,7 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
     {
         base.OnBlockUnloaded();
         network?.DidUnload(this);
+        Api.Logger.Notification("Pipe segment was unloaded, network fullyLoaded = false");
     }
 
     public override void GetBlockInfo(IPlayer forPlayer, StringBuilder dsc)

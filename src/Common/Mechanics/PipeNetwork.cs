@@ -1,3 +1,4 @@
+#nullable disable
 using System.Collections.Generic;
 using System.Linq;
 using PipelineMod.Common.Mechanics.Interfaces;
@@ -9,7 +10,6 @@ using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 
-#nullable disable
 namespace PipelineMod.Common.Mechanics;
 
 [ProtoContract]
@@ -21,6 +21,8 @@ public class PipeNetwork
     
     [ProtoMember(1)]
     public long networkId;
+    
+    // A list of chunks and how many nodes are found in them.
     [ProtoMember(2)]
     public Dictionary<Vec3i, int> inChunks = new();
 
@@ -49,7 +51,7 @@ public class PipeNetwork
         var position = node.GetPosition();
         nodes[position] = node;
         
-        // Track the chunk this node is found in.
+        // Track the chunk this node is found in, setting how many parts are found in the chunk.
         var key = new Vec3i(position.X / chunkSize, position.Y / chunkSize, position.Z / chunkSize);
         inChunks.TryGetValue(key, out var num);
         inChunks[key] = num + 1;
@@ -89,7 +91,7 @@ public class PipeNetwork
     {
         foreach (var node in nodes.Values)
         {
-            if (node is IPipelineDevice device)
+            if (node is IPipelineTicks device)
             {
                 // The devices have their own update method.
                 device.Tick(delta);
@@ -131,7 +133,7 @@ public class PipeNetwork
     }
 
 
-    public void DidUnload(IPipelineNode device) => this.fullyLoaded = false;
+    public void DidUnload(IPipelineNode device) => fullyLoaded = false;
 
     internal void AwaitChunkThenDiscover(Vec3i missingChunkPos)
     {

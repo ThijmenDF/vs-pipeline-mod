@@ -20,8 +20,6 @@ internal class BlockPipePumpEngine : BlockMPBase
         orientation = BlockFacing.FromFirstLetter(Variant["side"][0]);
         // Connector is on the 'left' side when looking north.
         connectableAt = orientation.GetCCW();
-        
-        api.Logger.Notification("Pump orientation: " + orientation);
     }
 
     public override void DidConnectAt(IWorldAccessor world, BlockPos pos, BlockFacing face)

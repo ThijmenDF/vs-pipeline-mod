@@ -7,19 +7,18 @@ namespace PipelineMod.Common.PLBlocks;
 
 internal class BlockPipePumpTank : BlockPipelineBase
 {
-    private BlockFacing orientation;
     public BlockFacing outputSide { get; private set; }
     public BlockFacing inputSide { get; private set; }
 
-    public BlockFacing Orientation => orientation;
+    public BlockFacing Orientation { get; private set; }
 
     public override void OnLoaded(ICoreAPI api)
     {
         base.OnLoaded(api);
 
-        orientation = BlockFacing.FromFirstLetter(Variant["side"][0]);
+        Orientation = BlockFacing.FromFirstLetter(Variant["side"][0]);
 
-        switch (orientation.Index)
+        switch (Orientation.Index)
         {
             case BlockFacing.indexNORTH:
                 outputSide = BlockFacing.EAST;
@@ -38,7 +37,7 @@ internal class BlockPipePumpTank : BlockPipelineBase
             break;
         }
 
-        if (orientation.IsAxisNS)
+        if (Orientation.IsAxisNS)
             connectableFaces = [BlockFacing.EAST, BlockFacing.WEST];
         else 
             connectableFaces = [BlockFacing.NORTH, BlockFacing.SOUTH];

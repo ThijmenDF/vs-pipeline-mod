@@ -36,6 +36,9 @@ public class PipelineModModSystem : ModSystem
         
         // No longer used :(
         api.RegisterBlockBehaviorClass("MultiblockOrientable", typeof(BlockBehaviorMultiblockOrientable));
+        
+        
+        api.RegisterBlockBehaviorClass(id + ".VerticalOrientable", typeof(VerticalOrientable));
         api.RegisterBlockBehaviorClass(id + ".BB.PipeInlet", typeof(BlockBehaviorPipeInlet));
         api.RegisterBlockBehaviorClass(id + ".BB.PipeSprinkler", typeof(BlockBehaviorPipeSprinkler));
 

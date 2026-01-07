@@ -14,7 +14,7 @@ public class BlockEntityPipePumpTank : BlockEntity
     {
         base.Initialize(api);
         
-        // If principal is null now (which is possible), we assume it's opposite of our orientation.
+        // The principal is opposite of our orientation.
         if (Block is BlockPipePumpTank tank)
             Principal = Pos.AddCopy(tank.Orientation.Opposite);
     }
@@ -35,4 +35,5 @@ public class BlockEntityPipePumpTank : BlockEntity
             return engine = Api.World.BlockAccessor.GetBlockEntity<BlockEntityPipePumpEngine>(Principal);
         }
     }
+    
 }

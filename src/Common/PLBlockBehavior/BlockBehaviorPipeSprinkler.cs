@@ -17,8 +17,10 @@ public class BlockBehaviorPipeSprinkler(Block block) : BlockBehavior(block)
         particleProps.MaxSize = 0.25f;
         particleProps.ParticleModel = EnumParticleModel.Quad;
         particleProps.ClimateColorMap = "climateWaterTint";
-        particleProps.LifeLength = 2f;
+        particleProps.LifeLength = 0.4f;
         particleProps.addLifeLength = 0f;
+        particleProps.ShouldDieInLiquid = true;
+        particleProps.SizeEvolve = new EvolvingNatFloat(EnumTransformFunction.CLAMPEDPOSITIVESINUS, 1.5f);
     }
 
     public override bool ShouldReceiveClientParticleTicks(IWorldAccessor world, IPlayer byPlayer, BlockPos pos, ref EnumHandling handling)
@@ -36,15 +38,17 @@ public class BlockBehaviorPipeSprinkler(Block block) : BlockBehavior(block)
     public override void OnAsyncClientParticleTick(IAsyncParticleManager manager, BlockPos pos, float windAffectednessAtPos, float secondsTicking)
     {
         particleProps.MinPos = pos.ToVec3d().Add(sourcePos);
-        var sprinkler = manager.BlockAccess.GetBlockEntity(pos).GetBehavior<BEBehaviorPipeSprinkler>();
-        if (sprinkler != null)
+        var entity = manager.BlockAccess.GetBlockEntity(pos);
+        var sprinkler = entity.GetBehavior<BEBehaviorPipeSprinkler>();
+        if (sprinkler != null && sprinkler.Source != null)
         {
+            var effectiveDistance = sprinkler.Source.ActiveTravelDistance - sprinkler.DistToNearestSource;
+            
             // Measure the strength at this sprinkler
             var strength = GameMath.Clamp(
-                (float)((sprinkler.Source?.ActiveTravelDistance ?? 0) - sprinkler.DistToNearestSource), 0, 5) / 3f;
+                (float)effectiveDistance, 0, 5) / 3f;
             
-            
-            if (strength > 0)
+            if (effectiveDistance >= 0)
             {
                 strength += 4f;
                 // set how 'far' it could travel.
@@ -55,6 +59,8 @@ public class BlockBehaviorPipeSprinkler(Block block) : BlockBehavior(block)
             }
             else // No particle can spawn
                 return;
+
+            particleProps.MinVelocity.Y = entity.Block.Code.EndVariant() == "down" ? 1 : 4;
         }
 
         manager.Spawn(particleProps);

@@ -4,15 +4,25 @@
     blockmaterial: "Metal",
     creativeinventory: {
         general: [
-            "*"
+            "*-up"
         ]
     },
     behaviors: [
+        {name: "pipelinemod.VerticalOrientable"},
         {name: "pipelinemod.BB.PipeSprinkler"},
     ],
     entityBehaviors: [{ name: "pipelinemod.BEB.PipeSprinkler" }],
-    shape: {
-        base: "pipelinemod:pipesprinkler"
+    variantgroups: [
+        { code:"side", loadFromProperties: "abstract/verticalorientation" }
+    ],
+    shapebytype: {
+        "*-up": {
+            base: "pipelinemod:pipesprinkler"
+        },
+        "*-down": {
+            base: "pipelinemod:pipesprinkler",
+            rotateX: 180
+        }
     },
     shapeInventory: {
         base: "pipelinemod:pipesprinkler"
@@ -36,6 +46,7 @@
         y2: 0.68,
         z2: 0.65
     },
+    particleCollisionBox: null,
     sounds: {
         "place": "game:block/chute",
         "break": "game:block/chute",

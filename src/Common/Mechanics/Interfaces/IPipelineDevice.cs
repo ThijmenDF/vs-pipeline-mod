@@ -15,5 +15,4 @@ public interface IPipelineDevice : IPipelineNode
     BlockFacing GetInputSide();
     BlockFacing GetOutputSide();
     
-    void Tick(float delta);
 }
