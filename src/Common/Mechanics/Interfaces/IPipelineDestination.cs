@@ -5,10 +5,9 @@ namespace PipelineMod.Common.Mechanics.Interfaces;
 
 public interface IPipelineDestination : IPipelineNode
 {
-    bool HasSources { get; }
-    
-    int NumSources { get; }
-
+    /**
+     * Which sources are able to provide to this destination.
+     */
     List<IPipelineSource> Sources { get; }
 
     /**

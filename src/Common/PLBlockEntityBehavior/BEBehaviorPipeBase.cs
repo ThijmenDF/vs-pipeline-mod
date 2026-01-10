@@ -151,17 +151,6 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
             loadedFromChunk = true;
     }
 
-    /*private void findSourceBlock(ICoreClientAPI? api)
-    {
-        if (sourcePos == null || api == null)
-        {
-            Source = null;
-            return;
-        }
-        
-        Source = api.World.BlockAccessor.GetBlockEntity(sourcePos)?.GetBehavior<IPipelineDevice>();
-    }*/
-
     protected virtual void UpdateConnections()
     {}
 

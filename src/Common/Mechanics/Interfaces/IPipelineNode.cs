@@ -39,20 +39,9 @@ public interface IPipelineNode
      * Removes a specified connection.
      */
     void RemoveConnection(BlockFacing connection, bool updateMesh = true);
-    
-    /**
-     * Adds a new connection to the list.
-     */
-    void AddConnection(BlockFacing connection);
-    
+
     /**
      * Destinations that connect to this node.
      */
     Dictionary<IPipelineDestination, int> Destinations { get; }
-
-    /**
-     * Quick access to the MarkDirty() method of blockEntities.
-     */
-    void MarkDirty();
-
 }

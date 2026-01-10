@@ -64,7 +64,7 @@ public class PipeNetwork(PipeMod pipeMod, long networkId)
         {
             if (node is IPipelineTicks device)
             {
-                // The devices have their own update method.
+                // These nodes have their own update method.
                 device.Tick(delta);
             }
 
