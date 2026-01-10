@@ -8,6 +8,8 @@ public interface IPipelineNode
 {
     PipeNetwork? Network { get; set; }
     
+    public int nodeId { get; }
+    
     /**
      * Called when the node leaves the network (is disconnected / removed)
      */
@@ -44,19 +46,9 @@ public interface IPipelineNode
     void AddConnection(BlockFacing connection);
     
     /**
-     * Devices that connect to this node. Can be either input or output devices.
+     * Destinations that connect to this node.
      */
-    Dictionary<IPipelineDestination, int> Devices { get; }
-
-    /*/**
-     * Gets the closest device in their active range that's taking in fluids
-     #1#
-    KeyValuePair<ConnectedDevice, int>? ActiveInputDevice { get; }
-    
-    /**
-     * Gets the closest device in their active range that's giving fluids to this node.
-     #1#
-    KeyValuePair<ConnectedDevice, int>? ActiveOutputDevice { get; }*/
+    Dictionary<IPipelineDestination, int> Destinations { get; }
 
     /**
      * Quick access to the MarkDirty() method of blockEntities.

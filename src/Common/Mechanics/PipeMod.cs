@@ -100,12 +100,12 @@ public class PipeMod : ModSystem
      */
     // private void OnClientRequestPacket(IServerPlayer player, MechClientRequestPacket packet)
     // {
-        // if (! data.networksById.TryGetValue(packet.networkId, out var network))
-            // return;
-        // network.SendBlocksUpdateToClient(player);
+    // if (! data.networksById.TryGetValue(packet.networkId, out var network))
+    // return;
+    // network.SendBlocksUpdateToClient(player);
     // }
 
-
+    public int GetNodeId() => data.nextNodeId++;
 
     /**
      * Retrieves or creates a network by id. Also tests if it's fully loaded or not.
@@ -253,6 +253,7 @@ public class PipeMod : ModSystem
     public void BuildNetwork(PipeNetwork network, IPipelineNode startNode)
     {
         Api.Logger.Notification("Building network " + network.networkId);
+        network.destinations.Clear();
         Queue<IPipelineNode> queue = new();
         queue.Enqueue(startNode);
         
@@ -277,7 +278,12 @@ public class PipeMod : ModSystem
                 neighbour.JoinNetwork(network);
                 queue.Enqueue(neighbour);
             }
+            
+            if (node is IPipelineDestination destination) 
+                network.destinations.Add(destination);
         }
+        
+        CalculateDistances(network);
         
         TestFullyLoaded(network);
     }
@@ -296,11 +302,22 @@ public class PipeMod : ModSystem
             {
                 var network = node.Network;
                 node.LeaveNetwork();
-                if (node is IPipelineDestination)
+                
+                // Remove the destination if it is one.
+                if (node is IPipelineDestination destination)
+                    network.destinations.Remove(destination);
+                
+                Api.Logger.Notification("Node was of type " + node.GetType().Name);
+                // If it's neither a destination nor source, continue
+                if (node is not IPipelineDestination && node is not IPipelineSource)
                 {
-                    CalculateDistances(network);
+                    Api.Logger.Notification("It was neither a source or destination");
+                    return;
                 }
                 
+                // if it IS either one, recalculate the distances.
+                CalculateDistances(network);
+
                 return;
             }
             

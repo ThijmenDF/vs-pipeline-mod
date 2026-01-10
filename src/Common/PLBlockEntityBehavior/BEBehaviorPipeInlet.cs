@@ -8,18 +8,21 @@ namespace PipelineMod.Common.PLBlockEntityBehavior;
 
 public class BEBehaviorPipeInlet(BlockEntity blockentity) : BEBehaviorPipeBase(blockentity), IPipelineSource
 {
+    // todo: see if this can be cached and only updated if the block it resides in changes.
     public bool IsSubmerged => waterLayer().IsLiquid();
     
-    public bool HasDestination => NumDestinations > 0;
+    public bool HasDestinations => numDestinationsLocal > 0 || NumDestinations > 0;
 
-    public int NumDestinations { get; set; }
+    private int numDestinationsLocal;
 
-    // Inlets are only active if they are submerged in a liquid.
-    public bool CanBeActive => IsSubmerged;
+    public int NumDestinations => Destinations.Count;
 
     // Inlet cannot push
     public int ActiveOutputDistance => 0;
-    
+
+    // Simple; the inlet provides 1 per tick if submerged.
+    public float GetOutput() => IsSubmerged ? 1f : 0f;
+
     // Output side is always up.
     public BlockFacing GetOutputSide()
     {
@@ -31,7 +34,7 @@ public class BEBehaviorPipeInlet(BlockEntity blockentity) : BEBehaviorPipeBase(b
      */
     public bool ShouldInletBeActive()
     {
-        return HasDestination && IsSubmerged;
+        return HasDestinations && IsSubmerged;
     }
     
     /**
@@ -47,8 +50,7 @@ public class BEBehaviorPipeInlet(BlockEntity blockentity) : BEBehaviorPipeBase(b
         base.GetBlockInfo(forPlayer, dsc);
 
         dsc.AppendLine();
-        dsc.AppendLine($"Number of destinations: {NumDestinations}");
-        dsc.AppendLine($"CanBeActive: {CanBeActive}");
+        dsc.AppendLine($"Number of destinations: {numDestinationsLocal}");
         dsc.AppendLine($"Active: {ShouldInletBeActive()}");
     }
 
@@ -56,7 +58,7 @@ public class BEBehaviorPipeInlet(BlockEntity blockentity) : BEBehaviorPipeBase(b
     {
         base.FromTreeAttributes(tree, worldAccessForResolve);
 
-        NumDestinations = tree.GetInt("NumDestinations");
+        numDestinationsLocal = tree.GetInt("NumDestinations");
     }
 
     public override void ToTreeAttributes(ITreeAttribute tree)

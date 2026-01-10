@@ -40,28 +40,10 @@ public class BlockBehaviorPipeSprinkler(Block block) : BlockBehavior(block)
         particleProps.MinPos = pos.ToVec3d().Add(sourcePos);
         var entity = manager.BlockAccess.GetBlockEntity(pos);
         var sprinkler = entity.GetBehavior<BEBehaviorPipeSprinkler>();
-        if (sprinkler != null)
-        {
-            // var effectiveDistance = sprinkler.Source.ActiveTravelDistance - sprinkler.DistToNearestSource;
-            //
-            // // Measure the strength at this sprinkler
-            // var strength = GameMath.Clamp(
-            //     (float)effectiveDistance, 0, 5) / 3f;
-            //
-            // if (effectiveDistance >= 0)
-            // {
-            //     strength += 4f;
-            //     // set how 'far' it could travel.
-            //     particleProps.MinVelocity.X = -strength / 2;
-            //     particleProps.MinVelocity.Z = -strength / 2;
-            //     particleProps.AddVelocity.X = strength;
-            //     particleProps.AddVelocity.Z = strength;
-            // }
-            // else // No particle can spawn
-            //     return;
+        if (sprinkler == null || !sprinkler.ShouldBeActive()) return;
 
-            particleProps.MinVelocity.Y = entity.Block.Code.EndVariant() == "down" ? 1 : 4;
-        }
+        particleProps.MinVelocity.Y = entity.Block.Code.EndVariant() == "down" ? 1 : 4;
+    
 
         manager.Spawn(particleProps);
     }

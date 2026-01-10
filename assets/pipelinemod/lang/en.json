@@ -1,6 +1,7 @@
 {
-    "hello": "hello world!",
     "game:tabname-pipelines": "Pipeline Mod",
-    "block-pipesegment": "Pipe segment",
-    "block-pipepump": "Water pump",
+    "pipelinemod:block-pipesegment": "Lead pipe section",
+    "pipelinemod:block-pipeinlet": "Fluid inlet",
+    "pipelinemod:block-pipepump-north": "Fluid pump",
+    "pipelinemod:block-pipesprinkler-up": "Water sprinkler"
 }

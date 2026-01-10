@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
 using PipelineMod.Common.Mechanics;
 using PipelineMod.Common.Mechanics.Interfaces;
 using Vintagestory.API.Common;
@@ -15,6 +16,8 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
     protected PipeMod? manager;
     
     protected PipeNetwork? network;
+
+    public int nodeId { get; private set; }
     
     // Stored separately for save/load purposes.
     public long NetworkId { get; private set; }
@@ -33,35 +36,7 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
     
     protected readonly List<BlockFacing> connections = [];
 
-    public Dictionary<IPipelineDestination, int> Devices { get; } = new();
-
-    // public KeyValuePair<ConnectedDevice, int>? ActiveInputDevice
-    // {
-    //     get
-    //     {
-    //         foreach (var kvp in Devices)
-    //         {
-    //             if (kvp.Key.Type == PipeConnectionType.Input && kvp.Key.Destination.ActiveInputDistance >= kvp.Value)
-    //                 return kvp;
-    //         }
-    //
-    //         return null;
-    //     }
-    // }
-    //
-    // public KeyValuePair<ConnectedDevice, int>? ActiveOutputDevice
-    // {
-    //     get
-    //     {
-    //         foreach (var kvp in Devices)
-    //         {
-    //             if (kvp.Key.Type == PipeConnectionType.Output && kvp.Key.Destination.ActiveInputDistance >= kvp.Value)
-    //                 return kvp;
-    //         }
-    //
-    //         return null;
-    //     }
-    // }
+    public Dictionary<IPipelineDestination, int> Destinations { get; } = [];
 
     public BlockPos GetPosition() => Position;
 
@@ -80,7 +55,10 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
 
         if (api.Side == EnumAppSide.Server && loadedFromChunk) // Can initialize as this block wasn't placed but loaded from an existing chunk.
             CreateJoinAndDiscoverNetwork();
-        
+
+        if (api.Side == EnumAppSide.Server)
+            nodeId = manager.GetNodeId();
+
     }
 
     public override void OnBlockPlaced(ItemStack? byItemStack = null)
@@ -140,12 +118,8 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
         base.GetBlockInfo(forPlayer, dsc);
         
         dsc.AppendLine("PipeNetworkID: " + NetworkId);
-        dsc.AppendLine("Connections: ");
-        foreach (var face in GetConnections())
-        {
-            dsc.Append(face.Code);
-            dsc.AppendLine(",");
-        }
+        dsc.AppendLine("Connections: " + GetConnections().Join(connection => connection.Code));
+        dsc.AppendLine("NodeID: " + nodeId);
     }
 
     public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldAccessForResolve)
@@ -163,6 +137,8 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
                 connections.Add(face);
             }
         }
+        
+        nodeId = tree.GetInt("nodeId");
 
         if (worldAccessForResolve.Side == EnumAppSide.Client)
         {
@@ -198,6 +174,8 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
         {
             tree.SetBool("connected" + face.Code, connections.Contains(face));
         }
+        
+        tree.SetInt("nodeId", nodeId);
     }
 
     public List<BlockFacing> GetConnections()
@@ -273,11 +251,15 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
             var newNetwork = manager.CreateNetwork();
             manager.BuildNetwork(newNetwork, this);
         }
-        else if (neighbourNetworks.Count == 1 && this is not IPipelineDestination)
+        else if (neighbourNetworks.Count == 1)
         {
             // Only a single neighbour. Join that one and call it quits
             var net = neighbourNetworks.First().Key;
             JoinNetwork(net);
+            
+            if (this is IPipelineDestination destination && !net.destinations.Contains(destination))
+                net.destinations.Add(destination);
+                
             net.CalculateDistances();
         }
         else
@@ -294,9 +276,6 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
 
             manager.RebuildNetwork(keepNetwork, this);
         }
-        
-        if (network != null)
-            manager.CalculateDistances(network);
     }
 
     /**

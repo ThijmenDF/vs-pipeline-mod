@@ -12,6 +12,8 @@ public class PipeNetwork(PipeMod pipeMod, long networkId)
 {
     public readonly Dictionary<BlockPos, IPipelineNode> nodes = new();
 
+    public readonly List<IPipelineDestination> destinations = [];
+
     [ProtoMember(1)]
     public readonly long networkId = networkId;
     
@@ -65,79 +67,54 @@ public class PipeNetwork(PipeMod pipeMod, long networkId)
                 // The devices have their own update method.
                 device.Tick(delta);
             }
-            
+
+            if (node is IPipelineSource source) ProcessSource(source);
+        }
+
+        foreach (var destination in destinations)
+        {
+            destination.MarkTickComplete();
         }
     }
 
-    /**
-     * Finds the first source in range for the destination.
-     */
-    private void FindSourceFor(IPipelineDestination destination)
+    private void ProcessSource(IPipelineSource source)
     {
-        var hadSource = destination.NumSources;
-        destination.NumSources = 0;
-        
-        foreach (var node in nodes.Values)
+        // A source needs to run a few cycles:
+        // 1. check how many destinations are reachable.
+        // Get the output (and empty any buffers)
+        var outputProvided = source.GetOutput();
+        // pipeMod.Api.Logger.Notification($"Source: {source.GetType().Name}({source.nodeId}) ProvidedOutput {outputProvided}");
+
+        List<IPipelineDestination> availableDestinations = [];
+        foreach (var (destination, distance) in source.Destinations)
         {
-            if (node is not IPipelineSource source) continue;
+            // pipeMod.Api.Logger.Notification($"Destination {destination.nodeId}, distance: {distance}, pulling: {destination.ActiveInputDistance}, pushing: {source.ActiveOutputDistance}, outputAvailable: {outputProvided}");
 
-            if (node == destination) // cannot loop onto itself.
-                continue;
-
-            // Inactive sources cannot be pulled from.
-            if (!source.CanBeActive) continue;
-            
-            // Find the distance between the destination and the source.
-            // The source should have a record in its device list of this destination.
-            node.Devices.TryGetValue(destination, out var distance);
-            
-            pipeMod.Api.Logger.Notification($"destination: {destination.GetType().Name} and source {source.GetType().Name} in {networkId}, distance: {distance}, activeInputDistance: {destination.ActiveInputDistance}, activeOutputDistance: {source.ActiveOutputDistance}");
-
-            // distance may be 0 if there is no device found, so check that first.
-            if (distance > 0 && (
-                distance <= destination.ActiveInputDistance // How far the destination can pull
-                || distance <= source.ActiveOutputDistance // How far the source can push
-                ))
+            if (
+                outputProvided > 0.005f &&
+                (destination.ActiveInputDistance >= distance
+                 || source.ActiveOutputDistance >= distance)
+            )
             {
-                pipeMod.Api.Logger.Notification($"Found source for destination {destination.GetType().Name} in {networkId}: {source.GetType().Name}");
-                source.NumDestinations += 1;
-                destination.NumSources += 1;
-                // We keep going because there may be more sources that need updating.
+                availableDestinations.Add(destination);
+            }
+            else
+            {
+                // Provide nothing, updating their state.
+                destination.ProvideInput(0f);
             }
         }
-
-        if (hadSource != destination.NumSources)
-            destination.MarkDirty();
-    }
-
-    /**
-     * Checks all destinations and checks if they have a valid source.
-     */
-    public void UpdateDestinations()
-    {
-        var previousDestinations = new Dictionary<IPipelineSource, int>();
-        foreach (var node in nodes.Values)
-        {
-            if (node is not IPipelineSource source) continue;
-            previousDestinations[source] = source.NumDestinations;
-            source.NumDestinations = 0;
-        }
         
-        foreach (var node in nodes.Values)
-        {
-            if (node is not IPipelineDestination destination) continue;
-            
-            // Check if the destination can find a source.
-            FindSourceFor(destination);
-        }
+        // No outflow or no destination? don't do anything else.
+        if (availableDestinations.Count == 0) return; 
+        
+        // 2. divide it's potential output over those destinations
+        var outputPotential = outputProvided / availableDestinations.Count;
 
-        foreach (var kvp in previousDestinations)
-        {
-            if (kvp.Key.NumDestinations != kvp.Value)
-                kvp.Key.MarkDirty();
-        }
+        // 3. Provide the divided output to each destination.
+        foreach (var destination in availableDestinations)
+            destination.ProvideInput(outputPotential);
     }
-
 
     public bool TestFullyLoaded(ICoreAPI api)
     {
@@ -156,111 +133,113 @@ public class PipeNetwork(PipeMod pipeMod, long networkId)
 
         // Look at each device in the network, and walk through the connected nodes to update their distance.
         
-        List<IPipelineDestination> devices = [];
         foreach (var node in nodes.Values)
         {
-            node.Devices.Clear();
-            
-            if (node is IPipelineDestination device)
-            {
-                devices.Add(device);
-            }
+            node.Destinations.Clear();
         }
         
-        pipeMod.Api.Logger.Notification("Devices in network " + networkId + ": " + devices.Count);
+        pipeMod.Api.Logger.Notification("Destinations in network " + networkId + ": " + destinations.Count);
 
-        if (devices.Count == 0)
+        foreach (var destination in destinations)
         {
-            UpdateDestinations();
-            return;
-        }
-
-        foreach (var device in devices)
-        {
+            destination.Sources.Clear();
             // Check if their connection sides have a node.
-            foreach (var face in device.GetConnections())
+            foreach (var face in destination.GetConnections())
             {
-                if (device.GetInputSide() != face) continue;
+                pipeMod.Api.Logger.Notification($"Checking {face} for destination {destination.nodeId}");
+                if (destination.GetInputSide() != face) continue;
+                pipeMod.Api.Logger.Notification("Face is input side");
                 
-                var node = device.GetNeighbour(pipeMod.Api.World, face);
+                var node = destination.GetNeighbour(pipeMod.Api.World, face);
                 if (node == null)
                 {
                     pipeMod.Api.Logger.Notification("No connection found for " + face);
                     continue;
                 }
                 
-                CheckNode(device, node, face);
+                CheckNode(destination, node, face);
             }
         }
-        
-        UpdateDestinations();
     }
     
     private void CheckNode(IPipelineDestination destination, IPipelineNode node, BlockFacing deviceFace)
     {
-        node.Devices.Add(destination, 1);
-        
         if (node is IPipelineDestination)
         {
             pipeMod.Api.Logger.Notification("Block on side " + deviceFace + " is a device, don't go further in.");
             return; //we're done here.
         }
         
+        node.Destinations.Add(destination, 1);
+        
         Queue<IPipelineNode> queue = new();
+        queue.Enqueue(node);
+        // Don't look back at itself or the destination we're coming from.
         List<IPipelineNode> visitedNodes = [node];
-
-        foreach (var face in node.GetConnections())
-        {
-            var neighbour = node.GetNeighbour(pipeMod.Api.World, face);
-            // Don't use the itself as a potential target.
-            if (neighbour == null || neighbour == destination) continue;
-
-            
-            // Special rules for destinations
-            if (neighbour is IPipelineDestination &&
-                (
-                    neighbour is not IPipelineSource || // No source? skip.
-                    neighbour is IPipelineSource source && source.GetOutputSide() != face.Opposite // is a source, but wrong end? skip
-                )
-            )
-            {
-                pipeMod.Api.Logger.Notification("Block on side " + deviceFace + " is a destination and either no source, or a source at the wrong side.");
-                continue;
-            }
-            
-            queue.Enqueue(neighbour);
-            visitedNodes.Add(neighbour);
-        }
+        var firstNode = true;
 
         while (queue.Count > 0)
         {
             node = queue.Dequeue();
             
             // Check its neighbours, get the highest distance and use the Source from that node.
-            var lowest = int.MaxValue - 1;
+            var lowest = int.MaxValue - 2;
+            if (firstNode)
+            {
+                lowest = 1;
+                firstNode = false;
+            }
+            
+            var markedSources = new List<IPipelineSource>();
 
             foreach (var face in node.GetConnections())
             {
                 var neighbour = node.GetNeighbour(pipeMod.Api.World, face);
-                // Don't check itself, won't be much point.
-                if (neighbour == null || neighbour == destination) continue;
+                switch (neighbour)
+                {
+                    // Don't check itself, won't be much point.
+                    case null:
+                        continue;
+                    // If the node is a source, check if the input side is correct
+                    case IPipelineSource source:
+                    {
+                        if (source.GetOutputSide() == face.Opposite && source != destination)
+                            markedSources.Add(source);
+                        continue;
+                    }
+                    // Destinations are always skipped
+                    case IPipelineDestination:
+                        continue;
+                }
 
                 // Check if the neighbour has this device
-                if (neighbour.Devices.TryGetValue(destination, out var distance))
+                if (neighbour.Destinations.TryGetValue(destination, out var distance))
                 {
                     // If they do, and their distance is lower than our lowest, update our lowest.
                     if (distance < lowest)
                         lowest = distance;
                 }
+
+                // Don't use this node further if it's already been checked.
+                if (visitedNodes.Contains(neighbour)) continue;
                 
-                // Don't enqueue the neighbour if it's already been checked, or if it's a device, because we don't go through devices.
-                if (visitedNodes.Contains(neighbour) || node is IPipelineDestination or IPipelineSource) continue;
+                if (neighbour == destination)
+                {
+                    lowest = 0;
+                    continue;
+                }
                 
                 visitedNodes.Add(neighbour);
                 queue.Enqueue(neighbour);
             }
+            
+            // Attached sources have a distance 1 greater than the current node.
+            markedSources.ForEach(source => source.Destinations.TryAdd(destination, GameMath.Min(lowest + 2, int.MaxValue)));
 
-            node.Devices.TryAdd(destination, GameMath.Min(lowest + 1, int.MaxValue - 1));
+            node.Destinations.TryAdd(destination, GameMath.Min(lowest + 1, int.MaxValue));
+            
+            if (node is IPipelineSource src)
+                destination.Sources.Add(src);
         }
     }
     

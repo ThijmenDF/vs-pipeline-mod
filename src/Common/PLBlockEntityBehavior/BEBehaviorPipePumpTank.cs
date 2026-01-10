@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using PipelineMod.Common.Mechanics.Interfaces;
 using PipelineMod.Common.PLBlockEntity;
@@ -12,17 +13,41 @@ namespace PipelineMod.Common.PLBlockEntityBehavior;
 public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBase(blockentity), 
     IPipelineDestination, IPipelineSource, IPipelineTicks
 {
-    public bool HasSource => NumSources > 0;
+    public bool HasSources => numSourcesLocal > 0 || NumSources > 0;
     
-    public int NumSources { get; set; }
-    
-    public bool HasDestination => NumDestinations > 0;
+    private int numSourcesLocal;
 
-    public int NumDestinations { get; set; }
+    public int NumSources => Sources.Count;
+    
+    public bool HasDestinations => numDestinationsLocal > 0 || NumDestinations > 0;
+    
+    private int numDestinationsLocal;
+
+    public int NumDestinations => Destinations.Count;
+
+    public List<IPipelineSource> Sources { get; } = [];
 
     public int ActiveInputDistance { get; private set; }
 
-    public int ActiveOutputDistance => HasSource ? ActiveInputDistance : 0; // No source = no output.
+    public int ActiveOutputDistance => ActiveInputDistance;
+
+    // How much volume is currently in the destination buffer.
+    private float currentVolume;
+    // The max volume of the destination buffer.
+    private const float maxVolume = 2f;
+
+    public void ProvideInput(float volume)
+    {
+        currentVolume = GameMath.Min(volume + currentVolume, maxVolume);
+    }
+
+    // Retrieves the destination buffer's content.
+    public float GetOutput()
+    {
+        var volume = currentVolume;
+        currentVolume = 0f;
+        return volume;
+    }
 
     public BlockFacing GetInputSide()
     {
@@ -33,9 +58,6 @@ public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBas
     {
         return (Block as BlockPipePumpTank)!.outputSide;
     }
-
-    // Pumps are only active if they have a source
-    public bool CanBeActive => HasSource;
 
     public void Tick(float delta)
     {
@@ -53,20 +75,19 @@ public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBas
 
         if (lastTravelDistance == ActiveInputDistance) return;
         
-        // Re-evaluate if all destinations in the network can still reach their sources.
-        network?.UpdateDestinations();
-        
         // Let the client know the new values.
         Blockentity.MarkDirty();
     }
+
+    public void MarkTickComplete() {}
 
     public override void GetBlockInfo(IPlayer forPlayer, StringBuilder dsc)
     {
         base.GetBlockInfo(forPlayer, dsc);
 
         dsc.AppendLine();
-        dsc.AppendLine($"Number of sources: {NumSources}");
-        dsc.AppendLine($"Number of destinations: {NumDestinations}");
+        dsc.AppendLine($"Number of sources: {numSourcesLocal}");
+        dsc.AppendLine($"Number of destinations: {numDestinationsLocal}");
         dsc.AppendLine($"Active Input Distance: {ActiveInputDistance}");
         dsc.AppendLine($"Active Output Distance: {ActiveOutputDistance}");
     }
@@ -76,8 +97,8 @@ public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBas
         base.FromTreeAttributes(tree, worldAccessForResolve);
         
         ActiveInputDistance = tree.GetInt("ActiveInputDistance");
-        NumSources = tree.GetInt("NumSources");
-        NumDestinations = tree.GetInt("NumDestinations");
+        numSourcesLocal = tree.GetInt("NumSources");
+        numDestinationsLocal = tree.GetInt("NumDestinations");
     }
 
     public override void ToTreeAttributes(ITreeAttribute tree)

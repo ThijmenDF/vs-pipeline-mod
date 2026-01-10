@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using PipelineMod.Common.Mechanics.Interfaces;
 using PipelineMod.Common.PLBlocks;
@@ -14,20 +15,41 @@ public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBa
     private int lastColumnIndex;
     private int lastRowIndex;
 
-    public bool HasSource => NumSources > 0;
+    private int numSourcesLocal;
+
+    public bool HasSources => numSourcesLocal > 0 || NumSources > 0;
     
-    public int NumSources { get; set; }
+    public int NumSources => Sources.Count;
+
+    public List<IPipelineSource> Sources { get; } = [];
     
     // Sprinklers cannot pull
     public int ActiveInputDistance => 0;
+
+    // Local buffer to track total supply.
+    private float currentBuffer;
     
+    public void ProvideInput(float volume) => currentBuffer += volume;
+
+    public void MarkTickComplete()
+    {
+        var wasProvided = isProvided;
+        isProvided = currentBuffer >= 0.05f;
+        if (wasProvided != isProvided)
+            MarkDirty();
+
+        currentBuffer = 0f;
+    }
+
     // Sprinklers can be either direction based on the actual block.
     public BlockFacing GetInputSide() => (Block as BlockPipeSprinkler)!.GetConnectableFacings()[0];
 
+    private bool isProvided;
+    
     /**
-     * Returns whether this inlet is currently used by a pump, and that pump is currently operating.
+     * Returns if there are sources and those sources are providing fluids.
      */
-    public bool ShouldBeActive() => HasSource;
+    public bool ShouldBeActive() => isProvided;
 
 
     public void Tick(float delta)
@@ -62,7 +84,7 @@ public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBa
         // Better luck next time.
         if (block is not BlockEntityFarmland farmland) return;
 
-        farmland.WaterFarmland(0.1f, false);
+        farmland.WaterFarmland(0.1f);
         block.MarkDirty();
     }
 
@@ -71,7 +93,7 @@ public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBa
         base.GetBlockInfo(forPlayer, dsc);
 
         dsc.AppendLine();
-        dsc.AppendLine($"Has source: {HasSource}");
+        dsc.AppendLine($"Has source: {HasSources}");
         dsc.AppendLine($"Active: {ShouldBeActive()}");
     }
 
@@ -79,7 +101,8 @@ public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBa
     {
         base.FromTreeAttributes(tree, worldAccessForResolve);
 
-        NumSources = tree.GetInt("NumSources");
+        numSourcesLocal = tree.GetInt("NumSources");
+        isProvided = tree.GetBool("IsProvided");
     }
 
     public override void ToTreeAttributes(ITreeAttribute tree)
@@ -87,5 +110,6 @@ public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBa
         base.ToTreeAttributes(tree);
 
         tree.SetInt("NumSources", NumSources);
+        tree.SetBool("IsProvided", isProvided);
     }
 }
