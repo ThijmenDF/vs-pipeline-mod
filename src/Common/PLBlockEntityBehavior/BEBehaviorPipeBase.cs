@@ -48,11 +48,6 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
         
         manager = Api.ModLoader.GetModSystem<PipeMod>();
 
-        // if (api.Side == EnumAppSide.Client)
-        // {
-        //     findSourceBlock(api as ICoreClientAPI);
-        // }
-
         if (api.Side == EnumAppSide.Server && loadedFromChunk) // Can initialize as this block wasn't placed but loaded from an existing chunk.
             CreateJoinAndDiscoverNetwork();
 
@@ -104,13 +99,6 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
         if (network != null && Api.Side == EnumAppSide.Server)
             manager?.OnNodeRemoved(this);
         
-    }
-
-    public override void OnBlockUnloaded()
-    {
-        base.OnBlockUnloaded();
-        network?.DidUnload();
-        Api.Logger.Notification("Pipe segment was unloaded, network fullyLoaded = false");
     }
 
     public override void GetBlockInfo(IPlayer forPlayer, StringBuilder dsc)
@@ -220,7 +208,7 @@ public abstract class BEBehaviorPipeBase(BlockEntity blockentity) : BlockEntityB
 
                 var node = entity.GetBehavior<BEBehaviorPipeBase>();
                 if (node == null) continue;
-                
+
                 // Also mark the connected block as 'facing' this one
                 node.AddConnection(face.Opposite);
 

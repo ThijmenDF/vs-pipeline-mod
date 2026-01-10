@@ -7,7 +7,7 @@ namespace PipelineMod.Common.PLBlockBehavior;
 
 public class BlockBehaviorPipeSprinkler(Block block) : BlockBehavior(block)
 {
-    private static readonly SimpleParticleProperties particleProps = new(3, 6, ColorUtil.ColorFromRgba(255, 255, 255, 127), new Vec3d(), new Vec3d(), new Vec3f(-2.5f, 4, -2.5f), new Vec3f(5, 0, 5));
+    private static readonly SimpleParticleProperties particleProps = new(3, 6, ColorUtil.ColorFromRgba(255, 255, 255, 127), new Vec3d(), new Vec3d(), new Vec3f(-2f, 4, -2f), new Vec3f(4, 0, 4));
 
     private static readonly Vec3d sourcePos = new(0.5d, 0.5d, 0.5d);
 

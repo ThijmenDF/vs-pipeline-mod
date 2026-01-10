@@ -1,42 +1,24 @@
 using System.Collections.Generic;
-using System.Linq;
 using PipelineMod.Common.Mechanics.Interfaces;
-using ProtoBuf;
-using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 
 namespace PipelineMod.Common.Mechanics;
 
-[ProtoContract]
 public class PipeNetwork(PipeMod pipeMod, long networkId)
 {
-    public readonly Dictionary<BlockPos, IPipelineNode> nodes = new();
+    public readonly List<IPipelineNode> nodes = [];
 
     public readonly List<IPipelineDestination> destinations = [];
 
-    [ProtoMember(1)]
     public readonly long networkId = networkId;
-    
-    // A list of chunks and how many nodes are found in them.
-    [ProtoMember(2)]
-    public readonly Dictionary<Vec3i, int> inChunks = new();
-
-    private const int chunkSize = 32;
-
-    public bool fullyLoaded;
 
     /**
      * Joins the given node to the network.
      */
     public void Join(IPipelineNode node)
     {
-        var position = node.GetPosition();
-        nodes[position] = node;
-        
-        // Track the chunk this node is found in, setting how many parts are found in the chunk.
-        var key = new Vec3i(position.X / chunkSize, position.Y / chunkSize, position.Z / chunkSize);
-        inChunks.TryGetValue(key, out var num);
-        inChunks[key] = num + 1;
+        if (nodes.Contains(node)) return;
+        nodes.Add(node);
     }
 
     /**
@@ -44,15 +26,7 @@ public class PipeNetwork(PipeMod pipeMod, long networkId)
      */
     public void Leave(IPipelineNode node)
     {
-        var position = node.GetPosition();
-        nodes.Remove(position);
-        
-        var key = new Vec3i(position.X / chunkSize, position.Y / chunkSize, position.Z / chunkSize);
-        inChunks.TryGetValue(key, out var num);
-        if (num <= 1)
-            inChunks.Remove(key);
-        else
-            inChunks[key] = num - 1;
+        nodes.Remove(node);
     }
 
     /**
@@ -60,7 +34,7 @@ public class PipeNetwork(PipeMod pipeMod, long networkId)
      */
     public void ServerTick(float delta)
     {
-        foreach (var node in nodes.Values)
+        foreach (var node in nodes)
         {
             if (node is IPipelineTicks device)
             {
@@ -116,24 +90,13 @@ public class PipeNetwork(PipeMod pipeMod, long networkId)
             destination.ProvideInput(outputPotential);
     }
 
-    public bool TestFullyLoaded(ICoreAPI api)
-    {
-        return inChunks.Keys.All(
-            key => api.World.BlockAccessor.GetChunk(key.X, key.Y, key.Z) != null
-        );
-    }
-
-
-    public void DidUnload() => fullyLoaded = false;
-
     public void CalculateDistances()
     {
-        if (!fullyLoaded) return;
         pipeMod.Api.Logger.Notification("Calculating distances of " + networkId);
 
         // Look at each device in the network, and walk through the connected nodes to update their distance.
         
-        foreach (var node in nodes.Values)
+        foreach (var node in nodes)
         {
             node.Destinations.Clear();
         }
@@ -146,9 +109,9 @@ public class PipeNetwork(PipeMod pipeMod, long networkId)
             // Check if their connection sides have a node.
             foreach (var face in destination.GetConnections())
             {
-                pipeMod.Api.Logger.Notification($"Checking {face} for destination {destination.nodeId}");
+                // pipeMod.Api.Logger.Notification($"Checking {face} for destination {destination.nodeId}");
                 if (destination.GetInputSide() != face) continue;
-                pipeMod.Api.Logger.Notification("Face is input side");
+                // pipeMod.Api.Logger.Notification("Face is input side");
                 
                 var node = destination.GetNeighbour(pipeMod.Api.World, face);
                 if (node == null)
@@ -166,7 +129,7 @@ public class PipeNetwork(PipeMod pipeMod, long networkId)
     {
         if (node is IPipelineDestination)
         {
-            pipeMod.Api.Logger.Notification("Block on side " + deviceFace + " is a device, don't go further in.");
+            // pipeMod.Api.Logger.Notification("Block on side " + deviceFace + " is a device, don't go further in.");
             return; //we're done here.
         }
         

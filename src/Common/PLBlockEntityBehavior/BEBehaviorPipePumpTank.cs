@@ -44,20 +44,28 @@ public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBas
     // Retrieves the destination buffer's content.
     public float GetOutput()
     {
+        // Don't allow any fluid be taken if the output is off.
+        if (ActiveOutputDistance == 0) return 0f;
+        
         var volume = currentVolume;
         currentVolume = 0f;
         return volume;
     }
 
-    public BlockFacing GetInputSide()
+    private BlockFacing inputSide = null!;
+    private BlockFacing outputSide = null!;
+
+    public override void Initialize(ICoreAPI api, JsonObject properties)
     {
-        return (Block as BlockPipePumpTank)!.inputSide;
+        base.Initialize(api, properties);
+
+        inputSide = (Block as BlockPipePumpTank)!.inputSide;
+        outputSide = (Block as BlockPipePumpTank)!.outputSide;
     }
+
+    public BlockFacing GetInputSide() => inputSide;
     
-    public BlockFacing GetOutputSide()
-    {
-        return (Block as BlockPipePumpTank)!.outputSide;
-    }
+    public BlockFacing GetOutputSide() => outputSide;
 
     public void Tick(float delta)
     {

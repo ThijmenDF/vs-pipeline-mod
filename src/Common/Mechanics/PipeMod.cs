@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using PipelineMod.Common.Mechanics.Interfaces;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -9,17 +8,8 @@ namespace PipelineMod.Common.Mechanics;
 
 public class PipeMod : ModSystem
 {
-    // private ICoreClientAPI capi;
-    // private ICoreServerAPI sapi;
-    
-    // private IClientNetworkChannel clientNwChannel;
-    // private IServerNetworkChannel serverNwChannel;
     public ICoreAPI Api = null!;
     private PipeData data = new();
-
-    private bool allNetworksFullyLoaded = true;
-
-    private List<PipeNetwork> nowFullyLoaded = [];
 
     public override bool ShouldLoad(EnumAppSide forSide) => forSide == EnumAppSide.Server;
 
@@ -27,42 +17,8 @@ public class PipeMod : ModSystem
     {
         base.Start(api);
         Api = api;
-        
-        // if (api.World is IClientWorldAccessor)
-        // {
-            // (api as ICoreClientAPI)?.Event
-            //     .RegisterRenderer(this, EnumRenderStage.Before, "mechanicalpowertick");
-            
-            // Register client network handlers
-            // clientNwChannel = ((ICoreClientAPI)api).Network
-            //     .RegisterChannel("vspipelinenetwork")
-                // .RegisterMessageType(typeof(PipelineNetworkPacket))
-                // .RegisterMessageType(typeof(NetworkRemovedPacket))
-                // .RegisterMessageType(typeof(MechClientRequestPacket))
-                // .SetMessageHandler(new NetworkServerMessageHandler<PipelineNetworkPacket>(OnPacket))
-                // .SetMessageHandler(new NetworkServerMessageHandler<NetworkRemovedPacket>(OnNetworkRemovePacket))
-            // ;
-        // }
-        // else
-        // {
-            // Register server network handlers
-            
-            // serverNwChannel = ((ICoreServerAPI) api).Network
-            //     .RegisterChannel("vspipelinenetwork")
-                // .RegisterMessageType(typeof (PipelineNetworkPacket))
-                // .RegisterMessageType(typeof (NetworkRemovedPacket))
-                // .RegisterMessageType(typeof (MechClientRequestPacket))
-                // .SetMessageHandler(new NetworkClientMessageHandler<MechClientRequestPacket>(OnClientRequestPacket))
-            // ;
-        // }
     }
 
-    // public override void StartClientSide(ICoreClientAPI api)
-    // {
-    //     base.StartClientSide(api);
-    //     // capi = api;
-    //     //api.Event.LeaveWorld += () => Renderer?.Dispose();
-    // }
 
     public override void StartServerSide(ICoreServerAPI api)
     {
@@ -74,71 +30,13 @@ public class PipeMod : ModSystem
         api.Event.SaveGameLoaded += Event_GameWorldLoad;
         api.Event.GameWorldSave += Event_GameWorldSave;
         api.Event.ChunkDirty += Event_ChunkDirty;
-        api.Event.ChunkColumnLoaded += Event_ChunkLoaded;
     }
-
-    /**
-     * When the client receives this packet.
-     */
-    // private void OnPacket(PipelineNetworkPacket packet)
-    // {
-    //     var isNew = !data.networksById.ContainsKey(packet.networkId);
-    //     
-    //     GetOrCreateNetwork(packet.networkId).UpdateFromPacket(packet, isNew);
-    // }
-
-    /**
-     * When the client receives the network removed packet.
-     */
-    // private void OnNetworkRemovePacket(NetworkRemovedPacket packet)
-    // {
-        // data.networksById.Remove(packet.networkId);
-    // }
-
-    /**
-     * When the server receives the network request packet.
-     */
-    // private void OnClientRequestPacket(IServerPlayer player, MechClientRequestPacket packet)
-    // {
-    // if (! data.networksById.TryGetValue(packet.networkId, out var network))
-    // return;
-    // network.SendBlocksUpdateToClient(player);
-    // }
 
     public int GetNodeId() => data.nextNodeId++;
 
-    /**
-     * Retrieves or creates a network by id. Also tests if it's fully loaded or not.
-     */
-    public PipeNetwork GetOrCreateNetwork(long networkId)
-    {
-        if (!data.networksById.TryGetValue(networkId, out var network))
-            data.networksById[networkId] = network = new PipeNetwork(this, networkId);
-        
-        TestFullyLoaded(network);
-        return network;
-    }
-
-    /**
-     * Tests the given network for if it's fully loaded (server side only).
-     * Updates the allNetworksFullyLoaded
-     */
-    public void TestFullyLoaded(PipeNetwork network)
-    {
-        if (Api.Side != EnumAppSide.Server || network.fullyLoaded)
-            return;
-
-        network.fullyLoaded = network.TestFullyLoaded(Api);
-        allNetworksFullyLoaded &= network.fullyLoaded;
-        Api.Logger.Notification("Network " + network.networkId + " fully loaded: " + network.fullyLoaded + ", allFullLoaded: "  + allNetworksFullyLoaded);
-    }
-
     public PipeNetwork CreateNetwork()
     {
-        var network = new PipeNetwork(this, data.nextNetworkId)
-        {
-            fullyLoaded = true
-        };
+        var network = new PipeNetwork(this, data.nextNetworkId);
         
         data.networksById.Add(data.nextNetworkId, network);
         ++data.nextNetworkId;
@@ -149,12 +47,6 @@ public class PipeMod : ModSystem
     {
         Api.Logger.Notification("Network " + network.networkId + " deleted");
         data.networksById.Remove(network.networkId);
-        // var packet = new NetworkRemovedPacket()
-        // {
-        //     networkId = network.networkId
-        // };
-        // var players = Array.Empty<IServerPlayer>();
-        // serverNwChannel.BroadcastPacket(packet, players);
     }
 
 
@@ -166,38 +58,10 @@ public class PipeMod : ModSystem
 
     private void Event_ChunkDirty(Vec3i chunkCoord, IWorldChunk chunk, EnumChunkDirtyReason reason)
     {
-        if (allNetworksFullyLoaded || reason == EnumChunkDirtyReason.MarkedDirty)
+        if (reason == EnumChunkDirtyReason.MarkedDirty)
             return;
         
-        Api.Logger.Notification("ChunkDirty because:" + reason);
-        
-        allNetworksFullyLoaded = true;
-        nowFullyLoaded.Clear();
-
-        foreach (var network in data.networksById.Values)
-        {
-            if (network.fullyLoaded) continue;
-            
-            allNetworksFullyLoaded = false;
-            if (!network.inChunks.ContainsKey(chunkCoord)) continue;
-            
-            TestFullyLoaded(network);
-            if (network.fullyLoaded) 
-                nowFullyLoaded.Add(network);
-        }
-        
-        for (var i = 0; i < nowFullyLoaded.Count; ++i)
-        {
-            RebuildNetwork(nowFullyLoaded[i]);
-            CalculateDistances(nowFullyLoaded[i]);
-        }
-    }
-
-    private void Event_ChunkLoaded(Vec2i columnCoord, IWorldChunk[] chunks)
-    {
-        // Api.Logger.Notification("Chunk column loaded: " + columnCoord);
-        
-        // TestFullyLoaded();
+        // Api.Logger.Warning("ChunkDirty because:" + reason);
     }
 
     public void RebuildNetwork(PipeNetwork network, IPipelineNode? startNode = null)
@@ -206,7 +70,7 @@ public class PipeMod : ModSystem
             return;
 
         Api.Logger.Notification("Rebuilding network " + network.networkId);
-        var array = network.nodes.Values.ToArray();
+        var array = network.nodes.ToArray();
 
         foreach (var node in array)
             node.LeaveNetwork();
@@ -221,33 +85,12 @@ public class PipeMod : ModSystem
         
         foreach (var network in data.networksById.Values)
         {
-            if (network.fullyLoaded && network.nodes.Count > 0)
+            if (network.nodes.Count > 0)
             {
                 network.ServerTick(delta);
             }
         }
     }
-    
-    
-    // we'll get to this later
-    // public void SendNetworkBlocksUpdateRequestToServer(long networkId)
-    // {
-    //     clientNwChannel.SendPacket(new MechClientRequestPacket()
-    //     {
-    //         networkId = networkId
-    //     });
-    // }
-
-    // public void OnRenderFrame(float delta, EnumRenderStage stage)
-    // {
-    //     if (capi.IsGamePaused) return;
-    //
-    //     foreach (var network in data.networksById.Values)
-    //         network.ClientTick(delta);
-    // }
-
-    //public double RenderOrder => 0.0;
-    //public int RenderRange => 9999;
 
 
     public void BuildNetwork(PipeNetwork network, IPipelineNode startNode)
@@ -283,9 +126,7 @@ public class PipeMod : ModSystem
                 network.destinations.Add(destination);
         }
         
-        CalculateDistances(network);
-        
-        TestFullyLoaded(network);
+        network.CalculateDistances();
     }
 
     /**
@@ -316,7 +157,7 @@ public class PipeMod : ModSystem
                 }
                 
                 // if it IS either one, recalculate the distances.
-                CalculateDistances(network);
+                network.CalculateDistances();
 
                 return;
             }
@@ -339,7 +180,7 @@ public class PipeMod : ModSystem
             var network = CreateNetwork();
             neighbour.JoinNetwork(network);
             BuildNetwork(network, neighbour);
-            CalculateDistances(network);
+            network.CalculateDistances();
         }
     }
 
@@ -351,18 +192,9 @@ public class PipeMod : ModSystem
         DeleteNetwork(network);
             
         // Dissolve the entire network
-        foreach (var node in network.nodes.Values)
+        foreach (var node in network.nodes)
         {
             node.LeaveNetwork();
         }
     }
-
-    public void CalculateDistances(PipeNetwork network)
-    {
-        network.CalculateDistances();
-    }
-
-    
-    
-    
 }

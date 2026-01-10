@@ -10,14 +10,11 @@ Current parts:
 Ideas: 
 * Pipe casting / forming.
 * Compatibility with other mods? (how?)
+* Sounds
 
 To-do's:
-* Detect pipe content (water, lava, steam etc).
-* Linking up pumps.
-* Multiple pumps from a single source.
+* Detect pipe content type (water, lava, steam etc).
 * Loading/unloading of chunks, sections on chunk boundaries.
-* Fix network distance checks when pipes are split
-* Fix replaceable setting
 
 
 Note to self:
