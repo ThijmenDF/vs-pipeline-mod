@@ -44,12 +44,23 @@ public interface IPipelineNode
     void AddConnection(BlockFacing connection);
     
     /**
-     * The distance to the nearest source block.
+     * Devices that connect to this node. Can be either input or output devices.
      */
-    int DistToNearestSource { get; set; }
+    Dictionary<IPipelineDestination, int> Devices { get; }
+
+    /*/**
+     * Gets the closest device in their active range that's taking in fluids
+     #1#
+    KeyValuePair<ConnectedDevice, int>? ActiveInputDevice { get; }
     
     /**
-     * The nearest source block
+     * Gets the closest device in their active range that's giving fluids to this node.
+     #1#
+    KeyValuePair<ConnectedDevice, int>? ActiveOutputDevice { get; }*/
+
+    /**
+     * Quick access to the MarkDirty() method of blockEntities.
      */
-    IPipelineDevice? Source { get; set; }
+    void MarkDirty();
+
 }

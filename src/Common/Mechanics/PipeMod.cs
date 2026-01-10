@@ -1,23 +1,19 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using PipelineMod.Common.Mechanics.Interfaces;
-using PipelineMod.Common.Mechanics.Packets;
-using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
-using Vintagestory.GameContent.Mechanics;
 
 namespace PipelineMod.Common.Mechanics;
 
-public class PipeMod : ModSystem, IRenderer
+public class PipeMod : ModSystem
 {
-    private ICoreClientAPI capi;
-    private ICoreServerAPI sapi;
+    // private ICoreClientAPI capi;
+    // private ICoreServerAPI sapi;
     
-    private IClientNetworkChannel clientNwChannel;
-    private IServerNetworkChannel serverNwChannel;
+    // private IClientNetworkChannel clientNwChannel;
+    // private IServerNetworkChannel serverNwChannel;
     public ICoreAPI Api = null!;
     private PipeData data = new();
 
@@ -25,52 +21,56 @@ public class PipeMod : ModSystem, IRenderer
 
     private List<PipeNetwork> nowFullyLoaded = [];
 
-    public override bool ShouldLoad(EnumAppSide forSide) => true;
+    public override bool ShouldLoad(EnumAppSide forSide) => forSide == EnumAppSide.Server;
 
     public override void Start(ICoreAPI api)
     {
         base.Start(api);
         Api = api;
         
-        if (api.World is IClientWorldAccessor)
-        {
-            (api as ICoreClientAPI)?.Event
-                .RegisterRenderer(this, EnumRenderStage.Before, "mechanicalpowertick");
+        // if (api.World is IClientWorldAccessor)
+        // {
+            // (api as ICoreClientAPI)?.Event
+            //     .RegisterRenderer(this, EnumRenderStage.Before, "mechanicalpowertick");
             
             // Register client network handlers
-            clientNwChannel = ((ICoreClientAPI)api).Network
-                .RegisterChannel("vspipelinenetwork")
-                .RegisterMessageType(typeof(PipelineNetworkPacket))
-                .RegisterMessageType(typeof(NetworkRemovedPacket))
-                .RegisterMessageType(typeof(MechClientRequestPacket))
-                .SetMessageHandler(new NetworkServerMessageHandler<PipelineNetworkPacket>(OnPacket))
-                .SetMessageHandler(new NetworkServerMessageHandler<NetworkRemovedPacket>(OnNetworkRemovePacket));
-        }
-        else
-        {
+            // clientNwChannel = ((ICoreClientAPI)api).Network
+            //     .RegisterChannel("vspipelinenetwork")
+                // .RegisterMessageType(typeof(PipelineNetworkPacket))
+                // .RegisterMessageType(typeof(NetworkRemovedPacket))
+                // .RegisterMessageType(typeof(MechClientRequestPacket))
+                // .SetMessageHandler(new NetworkServerMessageHandler<PipelineNetworkPacket>(OnPacket))
+                // .SetMessageHandler(new NetworkServerMessageHandler<NetworkRemovedPacket>(OnNetworkRemovePacket))
+            // ;
+        // }
+        // else
+        // {
             // Register server network handlers
-            api.World.RegisterGameTickListener(OnServerGameTick, 1000);
             
-            serverNwChannel = ((ICoreServerAPI) api).Network
-                .RegisterChannel("vspipelinenetwork")
-                .RegisterMessageType(typeof (PipelineNetworkPacket))
-                .RegisterMessageType(typeof (NetworkRemovedPacket))
-                .RegisterMessageType(typeof (MechClientRequestPacket))
-                .SetMessageHandler(new NetworkClientMessageHandler<MechClientRequestPacket>(OnClientRequestPacket));
-        }
+            // serverNwChannel = ((ICoreServerAPI) api).Network
+            //     .RegisterChannel("vspipelinenetwork")
+                // .RegisterMessageType(typeof (PipelineNetworkPacket))
+                // .RegisterMessageType(typeof (NetworkRemovedPacket))
+                // .RegisterMessageType(typeof (MechClientRequestPacket))
+                // .SetMessageHandler(new NetworkClientMessageHandler<MechClientRequestPacket>(OnClientRequestPacket))
+            // ;
+        // }
     }
 
-    public override void StartClientSide(ICoreClientAPI api)
-    {
-        base.StartClientSide(api);
-        capi = api;
-        //api.Event.LeaveWorld += () => Renderer?.Dispose();
-    }
+    // public override void StartClientSide(ICoreClientAPI api)
+    // {
+    //     base.StartClientSide(api);
+    //     // capi = api;
+    //     //api.Event.LeaveWorld += () => Renderer?.Dispose();
+    // }
 
     public override void StartServerSide(ICoreServerAPI api)
     {
         base.StartServerSide(api);
-        sapi = api;
+        
+        api.World.RegisterGameTickListener(OnServerGameTick, 1000);
+        
+        // sapi = api;
         api.Event.SaveGameLoaded += Event_GameWorldLoad;
         api.Event.GameWorldSave += Event_GameWorldSave;
         api.Event.ChunkDirty += Event_ChunkDirty;
@@ -80,30 +80,30 @@ public class PipeMod : ModSystem, IRenderer
     /**
      * When the client receives this packet.
      */
-    private void OnPacket(PipelineNetworkPacket packet)
-    {
-        var isNew = !data.networksById.ContainsKey(packet.networkId);
-        
-        GetOrCreateNetwork(packet.networkId).UpdateFromPacket(packet, isNew);
-    }
+    // private void OnPacket(PipelineNetworkPacket packet)
+    // {
+    //     var isNew = !data.networksById.ContainsKey(packet.networkId);
+    //     
+    //     GetOrCreateNetwork(packet.networkId).UpdateFromPacket(packet, isNew);
+    // }
 
     /**
      * When the client receives the network removed packet.
      */
-    private void OnNetworkRemovePacket(NetworkRemovedPacket packet)
-    {
-        data.networksById.Remove(packet.networkId);
-    }
+    // private void OnNetworkRemovePacket(NetworkRemovedPacket packet)
+    // {
+        // data.networksById.Remove(packet.networkId);
+    // }
 
     /**
      * When the server receives the network request packet.
      */
-    private void OnClientRequestPacket(IServerPlayer player, MechClientRequestPacket packet)
-    {
-        if (! data.networksById.TryGetValue(packet.networkId, out var network))
-            return;
-        network.SendBlocksUpdateToClient(player);
-    }
+    // private void OnClientRequestPacket(IServerPlayer player, MechClientRequestPacket packet)
+    // {
+        // if (! data.networksById.TryGetValue(packet.networkId, out var network))
+            // return;
+        // network.SendBlocksUpdateToClient(player);
+    // }
 
 
 
@@ -147,13 +147,14 @@ public class PipeMod : ModSystem, IRenderer
 
     public void DeleteNetwork(PipeNetwork network)
     {
+        Api.Logger.Notification("Network " + network.networkId + " deleted");
         data.networksById.Remove(network.networkId);
-        var packet = new NetworkRemovedPacket()
-        {
-            networkId = network.networkId
-        };
-        var players = Array.Empty<IServerPlayer>();
-        serverNwChannel.BroadcastPacket(packet, players);
+        // var packet = new NetworkRemovedPacket()
+        // {
+        //     networkId = network.networkId
+        // };
+        // var players = Array.Empty<IServerPlayer>();
+        // serverNwChannel.BroadcastPacket(packet, players);
     }
 
 
@@ -194,7 +195,7 @@ public class PipeMod : ModSystem, IRenderer
 
     private void Event_ChunkLoaded(Vec2i columnCoord, IWorldChunk[] chunks)
     {
-        Api.Logger.Notification("Chunk column loaded: " + columnCoord);
+        // Api.Logger.Notification("Chunk column loaded: " + columnCoord);
         
         // TestFullyLoaded();
     }
@@ -204,6 +205,7 @@ public class PipeMod : ModSystem, IRenderer
         if (network.nodes.Count == 0)
             return;
 
+        Api.Logger.Notification("Rebuilding network " + network.networkId);
         var array = network.nodes.Values.ToArray();
 
         foreach (var node in array)
@@ -211,9 +213,9 @@ public class PipeMod : ModSystem, IRenderer
 
         BuildNetwork(network, startNode ?? array[0]);
     }
-    
 
-    protected void OnServerGameTick(float delta)
+
+    private void OnServerGameTick(float delta)
     {
         ++data.tickNumber;
         
@@ -221,35 +223,36 @@ public class PipeMod : ModSystem, IRenderer
         {
             if (network.fullyLoaded && network.nodes.Count > 0)
             {
-                network.ServerTick(delta, data.tickNumber);
+                network.ServerTick(delta);
             }
         }
     }
     
     
     // we'll get to this later
-    public void SendNetworkBlocksUpdateRequestToServer(long networkId)
-    {
-        clientNwChannel.SendPacket(new MechClientRequestPacket()
-        {
-            networkId = networkId
-        });
-    }
+    // public void SendNetworkBlocksUpdateRequestToServer(long networkId)
+    // {
+    //     clientNwChannel.SendPacket(new MechClientRequestPacket()
+    //     {
+    //         networkId = networkId
+    //     });
+    // }
 
-    public void OnRenderFrame(float delta, EnumRenderStage stage)
-    {
-        if (capi.IsGamePaused) return;
+    // public void OnRenderFrame(float delta, EnumRenderStage stage)
+    // {
+    //     if (capi.IsGamePaused) return;
+    //
+    //     foreach (var network in data.networksById.Values)
+    //         network.ClientTick(delta);
+    // }
 
-        foreach (var network in data.networksById.Values)
-            network.ClientTick(delta);
-    }
-
-    public double RenderOrder => 0.0;
-    public int RenderRange => 9999;
+    //public double RenderOrder => 0.0;
+    //public int RenderRange => 9999;
 
 
     public void BuildNetwork(PipeNetwork network, IPipelineNode startNode)
     {
+        Api.Logger.Notification("Building network " + network.networkId);
         Queue<IPipelineNode> queue = new();
         queue.Enqueue(startNode);
         
@@ -293,7 +296,7 @@ public class PipeMod : ModSystem, IRenderer
             {
                 var network = node.Network;
                 node.LeaveNetwork();
-                if (node is IPipelineDevice)
+                if (node is IPipelineDestination)
                 {
                     CalculateDistances(network);
                 }
@@ -339,130 +342,10 @@ public class PipeMod : ModSystem, IRenderer
 
     public void CalculateDistances(PipeNetwork network)
     {
-        if (!network.fullyLoaded) return;
-
-        // Look at each device in the network, and walk through the connected nodes to update their distance.
-        
-        List<IPipelineDevice> devices = [];
-        foreach (var node in network.nodes.Values)
-        {
-            if (node is IPipelineDevice device)
-            {
-                devices.Add(device);
-                device.DistanceToClosestInlet = 0;
-                device.ClosestInlet = null;
-            }
-        }
-        
-        // Api.Logger.Notification("Devices in network " + network.networkId + ": " + devices.Count);
-
-        if (devices.Count == 0)
-        {
-            // Set all nodes to distance 0
-            foreach (var node in network.nodes.Values)
-            {
-                node.DistToNearestSource = 0;
-                node.Source = null;
-            }
-            
-            return;
-        }
-
-        foreach (var device in devices)
-        {
-            // Check if their connection sides have a node.
-            foreach (var face in device.GetConnections())
-            {
-                var node = device.GetNeighbour(Api.World, face);
-                if (node == null)
-                {
-                    Api.Logger.Notification("No connection found for " + face);
-                    continue;
-                }
-                
-                CheckNode(device, node, face);
-            }
-        }
+        network.CalculateDistances();
     }
 
-    private void CheckNode(IPipelineDevice device, IPipelineNode node, BlockFacing deviceFace)
-    {
-        node.DistToNearestSource = 1;
-        node.Source = device;
-        
-        if (node is IPipelineDevice)
-        {
-            Api.Logger.Notification("Block on side " + deviceFace + " is a device, don't go further in.");
-            return; //we're done here.
-        }
-        
-        Queue<IPipelineNode> queue = new();
-        List<IPipelineNode> visitedNodes = [node];
-
-        foreach (var face in node.GetConnections())
-        {
-            var neighbour = node.GetNeighbour(Api.World, face);
-            if (neighbour is null or IPipelineDevice) continue; // don't check devices either.
-            queue.Enqueue(neighbour);
-            visitedNodes.Add(neighbour);
-        }
-
-        while (queue.Count > 0)
-        {
-            node = queue.Dequeue();
-            
-            // Check its neighbours, get the highest distance and use the Source from that node.
-            var lowest = int.MaxValue - 1;
-            var closestDevice = device;
-
-            foreach (var face in node.GetConnections())
-            {
-                var neighbour = node.GetNeighbour(Api.World, face);
-                // Don't check devices, won't be much point.
-                if (neighbour is null or IPipelineDevice) continue;
-                
-                if (lowest > neighbour.DistToNearestSource)
-                {
-                    lowest = neighbour.DistToNearestSource;
-                    if (neighbour.Source != null)
-                        closestDevice = neighbour.Source;
-                }
-                
-                // Don't enqueue the neighbour if it's already been checked.
-                if (visitedNodes.Contains(neighbour)) continue;
-                
-                visitedNodes.Add(neighbour);
-                queue.Enqueue(neighbour);
-            }
-
-            node.Source = closestDevice;
-            node.DistToNearestSource = GameMath.Min(lowest + 1, int.MaxValue);
-
-            if (node is IPipelineSource source)
-            {
-                // Before we can mark it as a source, first check if it's on the device's input side.
-                if (device.GetInputSide() != deviceFace)
-                {
-                    Api.Logger.Notification("Inlet found but at the wrong side.");
-                    continue;
-                }
-                
-                // Check is inverted: the closer (lower number) the better.
-                if (device.ClosestInlet is null || device.DistanceToClosestInlet > node.DistToNearestSource)
-                {
-                
-                    device.DistanceToClosestInlet = node.DistToNearestSource;
-                    device.ClosestInlet = source;
-                }
-                
-                (device as BlockEntityBehavior)?.Blockentity.MarkDirty(true);
-                (source as BlockEntityBehavior)?.Blockentity.MarkDirty(true);
-            }
-
-        }
-        
-        
-    }
+    
     
     
 }

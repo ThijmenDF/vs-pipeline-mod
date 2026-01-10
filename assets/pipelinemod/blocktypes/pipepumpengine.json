@@ -39,7 +39,6 @@
         },
     },
     blockmaterial: "Wood",
-    replaceable: 100,
     materialDensity: 600,
     resistance: 2,
     lightAbsorption: 0,

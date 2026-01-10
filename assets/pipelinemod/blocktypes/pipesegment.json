@@ -24,7 +24,6 @@
     canChisel: false,
     randomize: false,
     rainpermeable: true,
-    replaceable: 6000,
     AllowSpawnCreatureGroups: [],
     collisionSelectionBox: {
         x1: 0.375,

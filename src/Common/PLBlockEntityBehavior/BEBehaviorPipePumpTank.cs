@@ -3,59 +3,26 @@ using System.Text;
 using PipelineMod.Common.Mechanics.Interfaces;
 using PipelineMod.Common.PLBlockEntity;
 using PipelineMod.Common.PLBlocks;
-using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 
 namespace PipelineMod.Common.PLBlockEntityBehavior;
 
-public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBase(blockentity), IPipelineDevice, IPipelineTicks
+public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBase(blockentity), 
+    IPipelineDestination, IPipelineSource, IPipelineTicks
 {
+    public bool HasSource => NumSources > 0;
     
-    public IPipelineSource? ClosestInlet { get; set; }
-    public int DistanceToClosestInlet { get; set; }
-
-    public int MaxTravelDistance { get; set; } = 12;
+    public int NumSources { get; set; }
     
-    public int ActiveTravelDistance { get; set; }
+    public bool HasDestination => NumDestinations > 0;
 
-    private BlockPos? inletPos;
+    public int NumDestinations { get; set; }
 
-    public override void Initialize(ICoreAPI api, JsonObject properties)
-    {
-        base.Initialize(api, properties);
-        
-        if (api.Side ==  EnumAppSide.Client)
-            findInlet(api as ICoreClientAPI);
-    }
+    public int ActiveInputDistance { get; private set; }
 
-    public void Tick(float delta)
-    {
-        // Check if there's a grate within range
-        //if (DistanceToClosestInlet <= 0 || ClosestInlet == null) return;
-
-        // Check if the grate is submerged.
-        //if (!ClosestInlet.IsSubmerged) return;
-        
-        // Actually "pump" water out of this source.
-        //ClosestInlet.RemoveWaterLayer();
-
-        // Some magic numbers. a speed of 1 means a distance of 10.
-        // Speed .5 => 5, .52 => 6 etc.
-        var lastTravelDistance = ActiveTravelDistance;
-        var speed = (Blockentity as BlockEntityPipePumpTank)
-            ?.Engine
-            ?.GetBehavior<BEBehaviorPipePumpEngine>()
-            ?.CurrentSpeed() ?? 0f;
-        ActiveTravelDistance = (int)Math.Ceiling(speed* 10f);
-
-        if (lastTravelDistance != ActiveTravelDistance)
-        {
-            Blockentity.MarkDirty(true);
-        }
-
-    }
+    public int ActiveOutputDistance => HasSource ? ActiveInputDistance : 0; // No source = no output.
 
     public BlockFacing GetInputSide()
     {
@@ -67,48 +34,58 @@ public class BEBehaviorPipePumpTank(BlockEntity blockentity) : BEBehaviorPipeBas
         return (Block as BlockPipePumpTank)!.outputSide;
     }
 
+    // Pumps are only active if they have a source
+    public bool CanBeActive => HasSource;
+
+    public void Tick(float delta)
+    {
+        // Some magic numbers. a speed of 1 means a distance of 10.
+        // Speed .5 => 5, .52 => 6 etc.
+        var lastTravelDistance = ActiveInputDistance;
+        var speed = (Blockentity as BlockEntityPipePumpTank)
+            ?.Engine
+            ?.GetBehavior<BEBehaviorPipePumpEngine>()
+            ?.CurrentSpeed() ?? 0f;
+        
+        // If it's really, really slow, might as well be stopped.
+        if (speed < 0.0001f) ActiveInputDistance = 0;
+        else ActiveInputDistance = (int)Math.Ceiling(speed * 10f);
+
+        if (lastTravelDistance == ActiveInputDistance) return;
+        
+        // Re-evaluate if all destinations in the network can still reach their sources.
+        network?.UpdateDestinations();
+        
+        // Let the client know the new values.
+        Blockentity.MarkDirty();
+    }
 
     public override void GetBlockInfo(IPlayer forPlayer, StringBuilder dsc)
     {
         base.GetBlockInfo(forPlayer, dsc);
 
         dsc.AppendLine();
-        dsc.AppendLine($"Distance to ClosestInlet: {DistanceToClosestInlet}");
-        dsc.AppendLine($"Active Distance: {ActiveTravelDistance}");
+        dsc.AppendLine($"Number of sources: {NumSources}");
+        dsc.AppendLine($"Number of destinations: {NumDestinations}");
+        dsc.AppendLine($"Active Input Distance: {ActiveInputDistance}");
+        dsc.AppendLine($"Active Output Distance: {ActiveOutputDistance}");
     }
 
     public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldAccessForResolve)
     {
         base.FromTreeAttributes(tree, worldAccessForResolve);
         
-        DistanceToClosestInlet = tree.GetInt("distanceToClosestGrate");
-        ActiveTravelDistance = tree.GetInt("activeTravelDistance");
-        inletPos = tree.GetBlockPos("sourcePos");
-        
-        
-        if (worldAccessForResolve.Side == EnumAppSide.Client) 
-            findInlet(Api as ICoreClientAPI);
+        ActiveInputDistance = tree.GetInt("ActiveInputDistance");
+        NumSources = tree.GetInt("NumSources");
+        NumDestinations = tree.GetInt("NumDestinations");
     }
 
     public override void ToTreeAttributes(ITreeAttribute tree)
     {
         base.ToTreeAttributes(tree);
         
-        tree.SetInt("distanceToClosestGrate", DistanceToClosestInlet);
-        tree.SetInt("activeTravelDistance", ActiveTravelDistance);
-        
-        if (ClosestInlet != null)
-            tree.SetBlockPos("sourcePos", ClosestInlet.GetPosition());
-    }
-
-    private void findInlet(ICoreClientAPI? api)
-    {
-        if (api == null || inletPos == null)
-        {
-            ClosestInlet = null;
-            return;
-        }
-        
-        ClosestInlet = api.World.BlockAccessor.GetBlockEntity(inletPos)?.GetBehavior<IPipelineSource>();
+        tree.SetInt("ActiveInputDistance", ActiveInputDistance);
+        tree.SetInt("NumSources", NumSources);
+        tree.SetInt("NumDestinations", NumDestinations );
     }
 }

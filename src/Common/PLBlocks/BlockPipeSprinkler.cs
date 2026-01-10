@@ -18,7 +18,7 @@ public class BlockPipeSprinkler : BlockPipelineBase
         
         connectableFaces = [orientation.Opposite];
 
-        if (orientation == BlockFacing.UP)
+        if (orientation == BlockFacing.DOWN)
             collisonBox = new Cuboidf(x1: 0.344, y1: 0.3125, z1: 0.344, x2: 0.655, y2: 1, z2: 0.655);
         else
             collisonBox = new Cuboidf(x1: 0.344, y1: 0, z1: 0.344, x2: 0.655, y2: 0.689, z2: 0.655);

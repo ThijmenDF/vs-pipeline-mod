@@ -1,47 +1,27 @@
-#nullable disable
 using System.Collections.Generic;
 using System.Linq;
 using PipelineMod.Common.Mechanics.Interfaces;
-using PipelineMod.Common.Mechanics.Packets;
-using PipelineMod.Common.PLBlockEntityBehavior;
 using ProtoBuf;
 using Vintagestory.API.Common;
-using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
-using Vintagestory.API.Server;
 
 namespace PipelineMod.Common.Mechanics;
 
 [ProtoContract]
-public class PipeNetwork
+public class PipeNetwork(PipeMod pipeMod, long networkId)
 {
-    public Dictionary<BlockPos, IPipelineNode> nodes = new();
+    public readonly Dictionary<BlockPos, IPipelineNode> nodes = new();
 
-    private PipeMod pipeMod;
-    
     [ProtoMember(1)]
-    public long networkId;
+    public readonly long networkId = networkId;
     
     // A list of chunks and how many nodes are found in them.
     [ProtoMember(2)]
-    public Dictionary<Vec3i, int> inChunks = new();
+    public readonly Dictionary<Vec3i, int> inChunks = new();
 
     private const int chunkSize = 32;
 
     public bool fullyLoaded;
-
-    private bool firstTick = true;
-
-    public PipeNetwork(PipeMod pipeMod, long networkId)
-    {
-        this.networkId = networkId;
-        Init(pipeMod);
-    }
-
-    public void Init(PipeMod pipeMod)
-    {
-        this.pipeMod = pipeMod;
-    }
 
     /**
      * Joins the given node to the network.
@@ -73,21 +53,10 @@ public class PipeNetwork
             inChunks[key] = num - 1;
     }
 
-    public void ClientTick(float delta)
-    {
-        if (firstTick)
-        {
-            firstTick = false;
-            pipeMod.SendNetworkBlocksUpdateRequestToServer(networkId);
-        }
-        
-        // todo: handle animations and effects
-    }
-
     /**
      * Spread the contents of nodes.
      */
-    public void ServerTick(float delta, long tickNumber)
+    public void ServerTick(float delta)
     {
         foreach (var node in nodes.Values)
         {
@@ -100,20 +69,75 @@ public class PipeNetwork
         }
     }
 
-
-    public void SendBlocksUpdateToClient(IServerPlayer player)
+    /**
+     * Finds the first source in range for the destination.
+     */
+    private void FindSourceFor(IPipelineDestination destination)
     {
+        var hadSource = destination.NumSources;
+        destination.NumSources = 0;
+        
         foreach (var node in nodes.Values)
         {
-            if (node is BEBehaviorPipeBase behavior)
-                behavior.Blockentity.MarkDirty();
+            if (node is not IPipelineSource source) continue;
+
+            if (node == destination) // cannot loop onto itself.
+                continue;
+
+            // Inactive sources cannot be pulled from.
+            if (!source.CanBeActive) continue;
+            
+            // Find the distance between the destination and the source.
+            // The source should have a record in its device list of this destination.
+            node.Devices.TryGetValue(destination, out var distance);
+            
+            pipeMod.Api.Logger.Notification($"destination: {destination.GetType().Name} and source {source.GetType().Name} in {networkId}, distance: {distance}, activeInputDistance: {destination.ActiveInputDistance}, activeOutputDistance: {source.ActiveOutputDistance}");
+
+            // distance may be 0 if there is no device found, so check that first.
+            if (distance > 0 && (
+                distance <= destination.ActiveInputDistance // How far the destination can pull
+                || distance <= source.ActiveOutputDistance // How far the source can push
+                ))
+            {
+                pipeMod.Api.Logger.Notification($"Found source for destination {destination.GetType().Name} in {networkId}: {source.GetType().Name}");
+                source.NumDestinations += 1;
+                destination.NumSources += 1;
+                // We keep going because there may be more sources that need updating.
+            }
+        }
+
+        if (hadSource != destination.NumSources)
+            destination.MarkDirty();
+    }
+
+    /**
+     * Checks all destinations and checks if they have a valid source.
+     */
+    public void UpdateDestinations()
+    {
+        var previousDestinations = new Dictionary<IPipelineSource, int>();
+        foreach (var node in nodes.Values)
+        {
+            if (node is not IPipelineSource source) continue;
+            previousDestinations[source] = source.NumDestinations;
+            source.NumDestinations = 0;
+        }
+        
+        foreach (var node in nodes.Values)
+        {
+            if (node is not IPipelineDestination destination) continue;
+            
+            // Check if the destination can find a source.
+            FindSourceFor(destination);
+        }
+
+        foreach (var kvp in previousDestinations)
+        {
+            if (kvp.Key.NumDestinations != kvp.Value)
+                kvp.Key.MarkDirty();
         }
     }
 
-    public void UpdateFromPacket(PipelineNetworkPacket packet, bool isNew)
-    {
-        // todo update the state of the network
-    }
 
     public bool TestFullyLoaded(ICoreAPI api)
     {
@@ -122,22 +146,126 @@ public class PipeNetwork
         );
     }
 
-    public void ReadFromTreeAttribute(ITreeAttribute tree)
+
+    public void DidUnload() => fullyLoaded = false;
+
+    public void CalculateDistances()
     {
-        networkId = tree.GetLong("networkId");
-    }
+        if (!fullyLoaded) return;
+        pipeMod.Api.Logger.Notification("Calculating distances of " + networkId);
 
-    public void WriteToTreeAttribute(ITreeAttribute tree)
+        // Look at each device in the network, and walk through the connected nodes to update their distance.
+        
+        List<IPipelineDestination> devices = [];
+        foreach (var node in nodes.Values)
+        {
+            node.Devices.Clear();
+            
+            if (node is IPipelineDestination device)
+            {
+                devices.Add(device);
+            }
+        }
+        
+        pipeMod.Api.Logger.Notification("Devices in network " + networkId + ": " + devices.Count);
+
+        if (devices.Count == 0)
+        {
+            UpdateDestinations();
+            return;
+        }
+
+        foreach (var device in devices)
+        {
+            // Check if their connection sides have a node.
+            foreach (var face in device.GetConnections())
+            {
+                if (device.GetInputSide() != face) continue;
+                
+                var node = device.GetNeighbour(pipeMod.Api.World, face);
+                if (node == null)
+                {
+                    pipeMod.Api.Logger.Notification("No connection found for " + face);
+                    continue;
+                }
+                
+                CheckNode(device, node, face);
+            }
+        }
+        
+        UpdateDestinations();
+    }
+    
+    private void CheckNode(IPipelineDestination destination, IPipelineNode node, BlockFacing deviceFace)
     {
-        tree.SetLong("networkId", networkId);
+        node.Devices.Add(destination, 1);
+        
+        if (node is IPipelineDestination)
+        {
+            pipeMod.Api.Logger.Notification("Block on side " + deviceFace + " is a device, don't go further in.");
+            return; //we're done here.
+        }
+        
+        Queue<IPipelineNode> queue = new();
+        List<IPipelineNode> visitedNodes = [node];
+
+        foreach (var face in node.GetConnections())
+        {
+            var neighbour = node.GetNeighbour(pipeMod.Api.World, face);
+            // Don't use the itself as a potential target.
+            if (neighbour == null || neighbour == destination) continue;
+
+            
+            // Special rules for destinations
+            if (neighbour is IPipelineDestination &&
+                (
+                    neighbour is not IPipelineSource || // No source? skip.
+                    neighbour is IPipelineSource source && source.GetOutputSide() != face.Opposite // is a source, but wrong end? skip
+                )
+            )
+            {
+                pipeMod.Api.Logger.Notification("Block on side " + deviceFace + " is a destination and either no source, or a source at the wrong side.");
+                continue;
+            }
+            
+            queue.Enqueue(neighbour);
+            visitedNodes.Add(neighbour);
+        }
+
+        while (queue.Count > 0)
+        {
+            node = queue.Dequeue();
+            
+            // Check its neighbours, get the highest distance and use the Source from that node.
+            var lowest = int.MaxValue - 1;
+
+            foreach (var face in node.GetConnections())
+            {
+                var neighbour = node.GetNeighbour(pipeMod.Api.World, face);
+                // Don't check itself, won't be much point.
+                if (neighbour == null || neighbour == destination) continue;
+
+                // Check if the neighbour has this device
+                if (neighbour.Devices.TryGetValue(destination, out var distance))
+                {
+                    // If they do, and their distance is lower than our lowest, update our lowest.
+                    if (distance < lowest)
+                        lowest = distance;
+                }
+                
+                // Don't enqueue the neighbour if it's already been checked, or if it's a device, because we don't go through devices.
+                if (visitedNodes.Contains(neighbour) || node is IPipelineDestination or IPipelineSource) continue;
+                
+                visitedNodes.Add(neighbour);
+                queue.Enqueue(neighbour);
+            }
+
+            node.Devices.TryAdd(destination, GameMath.Min(lowest + 1, int.MaxValue - 1));
+        }
     }
-
-
-    public void DidUnload(IPipelineNode device) => fullyLoaded = false;
-
-    internal void AwaitChunkThenDiscover(Vec3i missingChunkPos)
-    {
-        inChunks[missingChunkPos] = 1;
-        fullyLoaded = false;
-    }
+    
+    
+    
+    
+    
 }

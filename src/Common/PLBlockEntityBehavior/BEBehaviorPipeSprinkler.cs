@@ -1,30 +1,34 @@
 using System.Text;
 using PipelineMod.Common.Mechanics.Interfaces;
+using PipelineMod.Common.PLBlocks;
 using Vintagestory.API.Common;
+using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 using Vintagestory.GameContent;
 
 namespace PipelineMod.Common.PLBlockEntityBehavior;
 
-public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBase(blockentity), IPipelineTicks
+public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBase(blockentity), 
+    IPipelineDestination, IPipelineTicks
 {
-    private int lastColumnIndex = 0;
-    private int lastRowIndex = 0;
+    private int lastColumnIndex;
+    private int lastRowIndex;
+
+    public bool HasSource => NumSources > 0;
     
+    public int NumSources { get; set; }
+    
+    // Sprinklers cannot pull
+    public int ActiveInputDistance => 0;
+    
+    // Sprinklers can be either direction based on the actual block.
+    public BlockFacing GetInputSide() => (Block as BlockPipeSprinkler)!.GetConnectableFacings()[0];
+
     /**
      * Returns whether this inlet is currently used by a pump, and that pump is currently operating.
      */
-    public bool ShouldBeActive()
-    {
-        return DistToNearestSource > 0 && Source?.ActiveTravelDistance >= DistToNearestSource;
-    }
-    
-    public override void GetBlockInfo(IPlayer forPlayer, StringBuilder dsc)
-    {
-        base.GetBlockInfo(forPlayer, dsc);
+    public bool ShouldBeActive() => HasSource;
 
-        dsc.AppendLine();
-        dsc.AppendLine($"Active: {ShouldBeActive()}");
-    }
 
     public void Tick(float delta)
     {
@@ -56,9 +60,32 @@ public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBa
         ++lastColumnIndex;
 
         // Better luck next time.
-        if (block == null || block is not BlockEntityFarmland farmland) return;
+        if (block is not BlockEntityFarmland farmland) return;
 
         farmland.WaterFarmland(0.1f, false);
         block.MarkDirty();
+    }
+
+    public override void GetBlockInfo(IPlayer forPlayer, StringBuilder dsc)
+    {
+        base.GetBlockInfo(forPlayer, dsc);
+
+        dsc.AppendLine();
+        dsc.AppendLine($"Has source: {HasSource}");
+        dsc.AppendLine($"Active: {ShouldBeActive()}");
+    }
+
+    public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldAccessForResolve)
+    {
+        base.FromTreeAttributes(tree, worldAccessForResolve);
+
+        NumSources = tree.GetInt("NumSources");
+    }
+
+    public override void ToTreeAttributes(ITreeAttribute tree)
+    {
+        base.ToTreeAttributes(tree);
+
+        tree.SetInt("NumSources", NumSources);
     }
 }

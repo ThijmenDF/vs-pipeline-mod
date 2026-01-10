@@ -27,12 +27,12 @@ public class BEBehaviorPipeSegment(BlockEntity blockentity) : BEBehaviorPipeBase
     {
         if (Api is not ICoreClientAPI capi) return;
         
-        Blockentity.MarkDirty(true);
         
         var code = GetConnectionString();
         if (meshData.TryGetValue(code, out var value))
         {
             CurrentMesh = value;
+            Blockentity.MarkDirty(true);
             return;
         }
 
@@ -45,6 +45,8 @@ public class BEBehaviorPipeSegment(BlockEntity blockentity) : BEBehaviorPipeBase
         
         meshData.Add(code, mesh);
         CurrentMesh = mesh;
+        
+        Blockentity.MarkDirty(true);
     }
     
     private string GetConnectionString()

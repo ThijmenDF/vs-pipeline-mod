@@ -7,7 +7,7 @@ namespace PipelineMod.Common.PLBlockBehavior;
 
 public class BlockBehaviorPipeSprinkler(Block block) : BlockBehavior(block)
 {
-    private static readonly SimpleParticleProperties particleProps = new(3, 6, ColorUtil.ColorFromRgba(255, 255, 255, 127), new Vec3d(), new Vec3d(), new Vec3f(-3, 4, -3), new Vec3f(6, 0, 6));
+    private static readonly SimpleParticleProperties particleProps = new(3, 6, ColorUtil.ColorFromRgba(255, 255, 255, 127), new Vec3d(), new Vec3d(), new Vec3f(-2.5f, 4, -2.5f), new Vec3f(5, 0, 5));
 
     private static readonly Vec3d sourcePos = new(0.5d, 0.5d, 0.5d);
 
@@ -40,25 +40,25 @@ public class BlockBehaviorPipeSprinkler(Block block) : BlockBehavior(block)
         particleProps.MinPos = pos.ToVec3d().Add(sourcePos);
         var entity = manager.BlockAccess.GetBlockEntity(pos);
         var sprinkler = entity.GetBehavior<BEBehaviorPipeSprinkler>();
-        if (sprinkler != null && sprinkler.Source != null)
+        if (sprinkler != null)
         {
-            var effectiveDistance = sprinkler.Source.ActiveTravelDistance - sprinkler.DistToNearestSource;
-            
-            // Measure the strength at this sprinkler
-            var strength = GameMath.Clamp(
-                (float)effectiveDistance, 0, 5) / 3f;
-            
-            if (effectiveDistance >= 0)
-            {
-                strength += 4f;
-                // set how 'far' it could travel.
-                particleProps.MinVelocity.X = -strength / 2;
-                particleProps.MinVelocity.Z = -strength / 2;
-                particleProps.AddVelocity.X = strength;
-                particleProps.AddVelocity.Z = strength;
-            }
-            else // No particle can spawn
-                return;
+            // var effectiveDistance = sprinkler.Source.ActiveTravelDistance - sprinkler.DistToNearestSource;
+            //
+            // // Measure the strength at this sprinkler
+            // var strength = GameMath.Clamp(
+            //     (float)effectiveDistance, 0, 5) / 3f;
+            //
+            // if (effectiveDistance >= 0)
+            // {
+            //     strength += 4f;
+            //     // set how 'far' it could travel.
+            //     particleProps.MinVelocity.X = -strength / 2;
+            //     particleProps.MinVelocity.Z = -strength / 2;
+            //     particleProps.AddVelocity.X = strength;
+            //     particleProps.AddVelocity.Z = strength;
+            // }
+            // else // No particle can spawn
+            //     return;
 
             particleProps.MinVelocity.Y = entity.Block.Code.EndVariant() == "down" ? 1 : 4;
         }
