@@ -24,7 +24,7 @@ public class BlockPipeMold : BlockToolMold
             {
                 if (obj.Code.GetName() == "pipeshaper")
                 {
-                    tool[1] = new ItemStack(obj);
+                    tool[0] = new ItemStack(obj);
                     break;
                 }
             }

@@ -83,6 +83,8 @@ public class BlockEntityPipeMold : BlockEntityToolMold, ILiquidMetalSink, ITempe
 
         // Too bad.
         if (resultItem == null) return false;
+        
+        Api.World.PlaySoundAt(new AssetLocation("game:sounds/block/cokeovendoor-close"), Pos, -0.5, byPlayer, false);
             
         var stackSize = resultItem.StackSize;
         
