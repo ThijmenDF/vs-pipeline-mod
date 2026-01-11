@@ -22,19 +22,19 @@
     ],
     shapebytype: {
         "*-north": {
-            base: "pipelinemod:pump2-engine-frame",
+            base: "pipelinemod:pump/pump2-engine-frame",
             rotateY: 0,
         },
         "*-east": {
-            base: "pipelinemod:pump2-engine-frame",
+            base: "pipelinemod:pump/pump2-engine-frame",
             rotateY: 270,
         },
         "*-south": {
-            base: "pipelinemod:pump2-engine-frame",
+            base: "pipelinemod:pump/pump2-engine-frame",
             rotateY: 180,
         },
         "*-west": {
-            base: "pipelinemod:pump2-engine-frame",
+            base: "pipelinemod:pump/pump2-engine-frame",
             rotateY: 90,
         },
     },
@@ -46,7 +46,7 @@
         all: false
     },
     shapeInventory: {
-        base: "pipelinemod:pump2-inventory"
+        base: "pipelinemod:pump/pump2-inventory"
     },
     groundTransform: {
         origin: { x: 0.5, y: 0, z: 0 },

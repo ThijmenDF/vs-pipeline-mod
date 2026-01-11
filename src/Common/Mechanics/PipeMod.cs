@@ -190,9 +190,10 @@ public class PipeMod : ModSystem
     public void DissolveNetwork(PipeNetwork network)
     {
         DeleteNetwork(network);
-            
+        
+        var nodes = network.nodes.ToArray();
         // Dissolve the entire network
-        foreach (var node in network.nodes)
+        foreach (var node in nodes)
         {
             node.LeaveNetwork();
         }

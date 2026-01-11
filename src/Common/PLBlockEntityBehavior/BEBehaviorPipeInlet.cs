@@ -9,7 +9,7 @@ namespace PipelineMod.Common.PLBlockEntityBehavior;
 public class BEBehaviorPipeInlet(BlockEntity blockentity) : BEBehaviorPipeBase(blockentity), IPipelineSource
 {
     // todo: see if this can be cached and only updated if the block it resides in changes.
-    public bool IsSubmerged => waterLayer().IsLiquid();
+    public bool IsSubmerged => waterLayer()?.IsLiquid() ?? false;
     
     public bool HasDestinations => numDestinationsLocal > 0 || NumDestinations > 0;
 
@@ -40,7 +40,7 @@ public class BEBehaviorPipeInlet(BlockEntity blockentity) : BEBehaviorPipeBase(b
     /**
      * Returns the water layer of this inlet, if any.
      */
-    private Block waterLayer()
+    private Block? waterLayer()
     {
         return Api.World.BlockAccessor.GetBlock(Pos, BlockLayersAccess.Fluid);
     }

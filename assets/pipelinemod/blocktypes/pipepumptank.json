@@ -14,19 +14,19 @@
     ],
     shapebytype: {
         "*-north": {
-            base: "pipelinemod:pump2-tank",
+            base: "pipelinemod:pump/pump2-tank",
             rotateY: 0,
         },
         "*-east": {
-            base: "pipelinemod:pump2-tank",
+            base: "pipelinemod:pump/pump2-tank",
             rotateY: 270,
         },
         "*-south": {
-            base: "pipelinemod:pump2-tank",
+            base: "pipelinemod:pump/pump2-tank",
             rotateY: 180,
         },
         "*-west": {
-            base: "pipelinemod:pump2-tank",
+            base: "pipelinemod:pump/pump2-tank",
             rotateY: 90,
         },
     },

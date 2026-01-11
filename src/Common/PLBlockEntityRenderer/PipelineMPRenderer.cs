@@ -18,7 +18,7 @@ public class PipelineMPRenderer : MechBlockRenderer
     {
         // Main axle, centered.
         components.Add(
-            new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump2-engine-primarygear.json", 42000)
+            new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump/pump2-engine-primarygear.json", 42000)
             {
                 RotXFunc = dev => dev.AngleRad * -Math.Abs(dev.MainGearAxis[0]),
                 RotZFunc = dev => dev.AngleRad * -Math.Abs(dev.MainGearAxis[2]),
@@ -44,7 +44,7 @@ public class PipelineMPRenderer : MechBlockRenderer
         
         // Secondary axle, offset
         components.Add(
-            new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump2-engine-secondarygear.json", 42000)
+            new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump/pump2-engine-secondarygear.json", 42000)
             {
                 RotXFunc = dev => dev.AngleSecondary * Math.Abs(dev.SecondaryGearAxis[0]),
                 RotZFunc = dev => dev.AngleSecondary * Math.Abs(dev.SecondaryGearAxis[2]),
@@ -57,7 +57,7 @@ public class PipelineMPRenderer : MechBlockRenderer
         const float sliderTravel = 4.5f / 16f;
         
         components.Add(
-            new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump2-engine-slider.json", 42000)
+            new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump/pump2-engine-slider.json", 42000)
             {
                 RotXFunc = dev => 0f,
                 RotZFunc = dev => 0f,
@@ -74,7 +74,7 @@ public class PipelineMPRenderer : MechBlockRenderer
         
         // The connecting rod between piston rod and secondary axle gear.
         components.Add(
-            new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump2-engine-connectingrod.json", 42000)
+            new PipelineMPRComponent(capi, shapeLoc,  textureSourceBlock, "pipelinemod:shapes/pump/pump2-engine-connectingrod.json", 42000)
             {
                 RotXFunc = dev => Math.Abs(dev.SecondaryGearAxis[0]) != 0
                     ? GameMath.Sin(dev.AngleSecondary * Math.Abs(dev.SecondaryGearAxis[0])) * GameMath.PI * 0.1f

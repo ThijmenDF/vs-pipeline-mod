@@ -95,7 +95,7 @@ public class BEBehaviorPipePumpEngine(BlockEntity blockentity) : BEBehaviorMPBas
         
         var api = (Api as ICoreClientAPI)!;
 
-        var shape = Vintagestory.API.Common.Shape.TryGet(api, "pipelinemod:shapes/pump2-engine-frame.json");
+        var shape = Vintagestory.API.Common.Shape.TryGet(api, "pipelinemod:shapes/pump/pump2-engine-frame.json");
         var y = 0.0f;
         switch (BlockFacing.FromCode(Block.Variant["side"]).Code)
         {

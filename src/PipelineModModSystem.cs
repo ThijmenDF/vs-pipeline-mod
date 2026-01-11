@@ -1,11 +1,12 @@
-﻿using PipelineMod.Common.PLBlockBehavior;
+﻿// using HarmonyLib;
+
+using PipelineMod.Common.PLBlockBehavior;
 using PipelineMod.Common.PLBlockEntity;
 using PipelineMod.Common.PLBlockEntityBehavior;
 using PipelineMod.Common.PLBlockEntityRenderer;
 using PipelineMod.Common.PLBlocks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using Vintagestory.API.Server;
 using Vintagestory.GameContent.Mechanics;
 
 namespace PipelineMod;
@@ -45,13 +46,13 @@ public class PipelineModModSystem : ModSystem
         MechNetworkRenderer.RendererByCode["pipelineengine"] = typeof(PipelineMPRenderer);
     }
 
-    public override void StartServerSide(ICoreServerAPI api)
-    {
-        // Mod.Logger.Notification("Hello from template mod server side: " + Lang.Get("pipelinemod:hello"));
-    }
+    // public override void StartServerSide(ICoreServerAPI api)
+    // {
+    // }
 
     public override void StartClientSide(ICoreClientAPI api)
     {
-        // Mod.Logger.Notification("Hello from template mod client side: " + Lang.Get("pipelinemod:hello"));
+        // var harmony = new Harmony(Mod.Info.ModID);
+        // harmony.PatchAll();
     }
 }

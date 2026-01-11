@@ -68,6 +68,7 @@
       <Folder Include="assets\pipelinemod\sounds\" />
       <Folder Include="assets\pipelinemod\textures\" />
       <Folder Include="src\Client\" />
+      <Folder Include="src\Patches\" />
       <Folder Include="src\Server\" />
     </ItemGroup>
 
