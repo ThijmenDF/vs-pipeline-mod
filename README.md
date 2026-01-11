@@ -6,18 +6,21 @@ Current parts:
 * Pump (mechanical network)
 * Sprinkler
 * Water drain (inlet)
+* Pipe mold & shaping tool
 
 Ideas: 
-* Pipe casting / forming.
+* Pipe shaping animation
 * Compatibility with other mods? (how?)
-* Sounds
 
 To-do's:
 * Detect pipe content type (water, lava, steam etc).
 * Loading/unloading of chunks, sections on chunk boundaries.
+* Sounds (pump.ogg 😉)
+* Handbook for all parts
 
 
 Note to self:
 .tfedit
-.tfedit
-.tfeddiiitittttttttttttt
+.hbedit
+.reload lang
+.debug reloadhandbook 

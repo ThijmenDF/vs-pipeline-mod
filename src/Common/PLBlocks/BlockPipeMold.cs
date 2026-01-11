@@ -67,9 +67,9 @@ public class BlockPipeMold : BlockToolMold
         }
         else
         {
+            if (byEntity is not EntityPlayer player) return;
             if (byEntity.World.BlockAccessor.GetBlockEntity(blockSel.Position.AddCopy(blockSel.Face.Opposite)) is not BlockEntityPipeMold blockEntity)
                 return;
-            if (byEntity is not EntityPlayer player) return;
             
             var byPlayer = player.World.PlayerByUid(player.PlayerUID);
             

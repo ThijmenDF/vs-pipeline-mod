@@ -1,0 +1,21 @@
+<strong>Fluid Pipes and Pumps</strong>
+
+Moving fluids such as water around can be used to perform certain tasks without the need for manual intervention. One of such tasks would be watering farmland. This can be achieved using a <a href="handbook://block-pipelinemod:pipesprinkler-up">sprinkler</a>.
+
+<strong>Pipelines</strong>
+
+In order to bring fluids, such as water, to a destination, <a href="handbook://block-pipelinemod:pipesegment-lead">pipes</a> are required.
+
+To build pipes, you will need to make a <a href="handbook://block-pipelinemod:pipemold-fired-plate">pipe mold</a> and a <a href="handbook://item-pipelinemod:pipeshaper">pipe shaper</a>. First you need to fill the mold with molten lead. About 2 ingots worth should be sufficient. While the lead cools, you can <hk>shift</hk> + <hk>rightmouse</hk> with the <a href="handbook://item-pipelinemod:pipeshaper">pipe shaper</a> tool when the lead is <strong>soft</strong> in order to shape pipes. This forms about 8 <a href="handbook://block-pipelinemod:pipesegment-lead">lead pipe sections</a>. If you wait too long and the lead hardens, it'll form a <a href="handbook://item-metalplate-lead">plate</a> instead.
+
+When you place a pipe, it automatically connects to neighbouring pipes. Pipes also connect to <a href="handbook://block-pipelinemod:pipeinlet">sources</a> and <a href="handbook://block-pipelinemod:pipesprinkler-up">destinations</a>.
+
+<strong>Moving fluids around</strong>
+
+Most fluids, like water, don't flow on their own. They need something to push / pull water. This is where the <a href="handbook://block-pipelinemod:pipepump-north">Fluid pumps</a> come in.
+
+Pumps connect to the <a href="handbook://gamemechanicinfo-mechanicalpower">mechanical network</a>. The speed of the pump effect its pumping range. Pumps are able to pull water from sources like the <a href="handbook://block-pipelinemod:pipeinlet">water inlet</a> and push it into the pipes. They are limited in range by their pumping speed. The faster the speed, the further they can move water. Looking at a pump will tell you the current range.
+
+Pumps have an input side and an output side. The input is marked in <font color="#FF4858">red</font> while the output is marked in <font color="#7392FF">blue</font>.
+
+You can also chain pumps in order to increase the total range. If a pump is reaching 10 blocks, placing another pump on the 10th block would add another 10 blocks down the line, assuming both are powered.
