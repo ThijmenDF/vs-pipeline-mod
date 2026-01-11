@@ -1,7 +1,7 @@
 {
     code: "pipemold",
-    class: "BlockToolMold",
-    entityClass: "ToolMold",
+    class: "pipelinemod.Blocks.PipeMold",
+    entityClass: "pipelinemod.BE.PipeMold",
     entityBehaviors: [
         {
             name: "TemperatureSensitive"
@@ -21,9 +21,13 @@
             { x1: 2, z1: 2, x2: 14, z2: 14 }
         ],
         drop: {
+            type: "item",
+            code: "game:metalplate-{metal}"
+        },
+        shaperesult: {
             type: "block",
-            code: "pipelinemod:pipesegment-{metal}",
-            quantity: 16
+            code: "pipelinemod:pipesegment-lead",
+            quantity: 8,
         },
         handbook: {
             include: true,

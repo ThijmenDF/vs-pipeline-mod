@@ -192,10 +192,7 @@ public class PipeMod : ModSystem
         DeleteNetwork(network);
         
         var nodes = network.nodes.ToArray();
-        // Dissolve the entire network
-        foreach (var node in nodes)
-        {
-            node.LeaveNetwork();
-        }
+        foreach (var node in nodes) node.LeaveNetwork();
+        network.destinations.Clear();
     }
 }

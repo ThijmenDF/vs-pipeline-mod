@@ -4,11 +4,13 @@
     "pipelinemod:block-pipeinlet": "Fluid inlet",
     "pipelinemod:block-pipepump-north": "Fluid pump",
     "pipelinemod:block-pipesprinkler-up": "Water sprinkler",
-    "pipelinemod:block-pipemold-*-*": "Pipe mold",
+    "pipelinemod:block-pipemold-fired-plate": "Pipe mold",
     
     "pipelinemod:handbook-pipemold-title": "Mold for lead pipes",
-    "pipelinemod:handbook-pipemold-text": "Use a <a href=\"handbook://item-pipelinemod:pipeshaper\">pipe shaper tool</a> when the metal is soft to create <a href=\"handbook://block-pipelinemod:pipesegment-lead\">lead pipes</a>. When cooled completely, you will get a plate instead.<br><br>Only lead can be added, as other metals would be too hot and destroy the mold.",
+    "pipelinemod:handbook-pipemold-text": "Pour in molten lead and use a <a href=\"handbook://item-pipelinemod:pipeshaper\">pipe shaper tool</a> when the metal is soft to create <a href=\"handbook://block-pipelinemod:pipesegment-lead\">lead pipes</a>. If the shaper tool is not used, you will get a plate instead.<br><br>Only lead can be used, as other metals would be too hot and destroy the mold.",
 
     "pipelinemod:handbook-pipesegment-title": "Lead pipe section",
-    "pipelinemod:handbook-pipesegment-text": "Automatically connects to other pipe sections. Crafted by molding using a <a href=\"handbook://block-pipelinemod:pipemold-fired-plate\">pipe mold</a> and a <a href=\"handbook://item-pipelinemod:pipeshaper\">pipe shaper tool</a>."
+    "pipelinemod:handbook-pipesegment-text": "Automatically connects to other pipe sections. Crafted by molding using a <a href=\"handbook://block-pipelinemod:pipemold-fired-plate\">pipe mold</a> and a <a href=\"handbook://item-pipelinemod:pipeshaper\">pipe shaper tool</a>.",
+    
+    "pipelinemod:blockhelp-pipemold-fold": "Shape pipe"
 }

@@ -14,8 +14,6 @@ public class BlockPipeSprinkler : BlockPipelineBase
         
         var orientation = BlockFacing.FromFirstLetter(Variant["side"][0]);
         
-        api.Logger.Notification("Orientation: " + orientation);
-        
         connectableFaces = [orientation.Opposite];
 
         if (orientation == BlockFacing.DOWN)

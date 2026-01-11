@@ -24,10 +24,12 @@ public class PipelineModModSystem : ModSystem
         api.RegisterBlockClass(id + ".Blocks.PipePumpTank", typeof(BlockPipePumpTank));
         api.RegisterBlockClass(id + ".Blocks.PipeInlet", typeof(BlockPipeInlet));
         api.RegisterBlockClass(id + ".Blocks.PipeSprinkler", typeof(BlockPipeSprinkler));
+        api.RegisterBlockClass(id + ".Blocks.PipeMold", typeof(BlockPipeMold));
         
         api.RegisterBlockEntityClass(id + ".BE.PipePumpEngine", typeof (BlockEntityPipePumpEngine));
         api.RegisterBlockEntityClass(id + ".BE.PipePumpTank", typeof (BlockEntityPipePumpTank));
         api.RegisterBlockEntityClass(id + ".BE.PipeSegment", typeof (BlockEntityPipeSegment));
+        api.RegisterBlockEntityClass(id + ".BE.PipeMold", typeof (BlockEntityPipeMold));
         
         api.RegisterBlockEntityBehaviorClass(id + ".BEB.PipeSegment", typeof (BEBehaviorPipeSegment));
         api.RegisterBlockEntityBehaviorClass(id + ".BEB.PipePumpEngine", typeof (BEBehaviorPipePumpEngine));

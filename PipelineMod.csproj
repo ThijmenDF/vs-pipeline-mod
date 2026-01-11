@@ -63,7 +63,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="assets\pipelinemod\itemtypes\" />
       <Folder Include="assets\pipelinemod\recipes\" />
       <Folder Include="assets\pipelinemod\sounds\" />
       <Folder Include="assets\pipelinemod\textures\" />
