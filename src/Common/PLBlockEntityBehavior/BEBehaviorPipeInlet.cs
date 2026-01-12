@@ -39,10 +39,11 @@ public class BEBehaviorPipeInlet(BlockEntity blockentity) : BEBehaviorPipeBase(b
     
     /**
      * Returns the water layer of this inlet, if any.
+     * Lots of ?'s because this may be called earlier than expected.
      */
     private Block? waterLayer()
     {
-        return Api.World.BlockAccessor.GetBlock(Pos, BlockLayersAccess.Fluid);
+        return Api?.World?.BlockAccessor?.GetBlock(Pos, BlockLayersAccess.Fluid);
     }
 
     public override void GetBlockInfo(IPlayer forPlayer, StringBuilder dsc)

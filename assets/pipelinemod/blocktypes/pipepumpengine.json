@@ -11,6 +11,19 @@
             renderer: "pipelineengine"
         }
     },
+    attributesbytype: {
+        "*-north": {
+            handbook: {
+                include: true,
+                extraSections: [
+                    {
+                        "title": "pipelinemod:handbook-pipepump-title",
+                        "text": "pipelinemod:handbook-pipepump-text"
+                    }
+                ]
+            }
+        }
+    },
     behaviors: [
         {name: "HorizontalOrientable"},
     ],

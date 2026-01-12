@@ -27,9 +27,20 @@
     shapeInventory: {
         base: "pipelinemod:pipesprinkler"
     },
+    attributesbytype: {
+        "*-up": {
+            handbook: {
+                include: true,
+                extraSections: [
+                    {
+                        "title": "pipelinemod:handbook-pipesprinkler-title",
+                        "text": "pipelinemod:handbook-pipesprinkler-text"
+                    }
+                ]
+            }
+        }
+    },
     lightAbsorption: 1,
-    // Only absorb *some* light
-    //  faceCullMode: "nevercull",
     sideSolidOpaqueAo: {
         all: false
     },

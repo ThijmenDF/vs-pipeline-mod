@@ -10,7 +10,17 @@
     texture: {
         base: "game:block/wood/charred"
     },
-    attributes: {},
+    attributes: {
+        handbook: {
+            include: true,
+            extraSections: [
+                {
+                    "title": "pipelinemod:handbook-pipeshaper-title",
+                    "text": "pipelinemod:handbook-pipeshaper-text"
+                }
+            ]
+        }
+    },
     maxstacksize: 1,
     creativeinventory: {
         general: ["*"]
