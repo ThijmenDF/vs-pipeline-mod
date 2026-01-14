@@ -1,0 +1,7 @@
+{
+    code: "pipepumptank-partial",
+    shape: {
+        base: "pipelinemod:pump/pump2-tank"
+    },
+    maxstacksize: 1
+}

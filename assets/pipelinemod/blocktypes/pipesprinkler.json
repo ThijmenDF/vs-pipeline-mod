@@ -27,6 +27,10 @@
     shapeInventory: {
         base: "pipelinemod:pipesprinkler"
     },
+    attributes: {
+        minFluidPerSecond: 0.2,
+        acceptsFluid: "water"
+    },
     attributesbytype: {
         "*-up": {
             handbook: {

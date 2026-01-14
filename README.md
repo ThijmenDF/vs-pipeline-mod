@@ -11,12 +11,15 @@ Current parts:
 Ideas: 
 * Pipe shaping animation
 * Compatibility with other mods? (how?)
+* Valves
+* Pumping water away and into basins
 
 To-do's:
 * Detect pipe content type (water, lava, steam etc).
 * Loading/unloading of chunks, sections on chunk boundaries.
 * Sounds (pump.ogg 😉)
 * Handbook for all parts
+* Crafting recipes
 
 
 Note to self:

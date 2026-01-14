@@ -1,0 +1,25 @@
+{
+    code: "pipepumpengine-partial",
+    shape: {
+        base: "pipelinemod:pump/pump2-engine"
+    },
+    maxstacksize: 1,
+    
+    guiTransform: {
+        translation: { x: 3, y: -2, z: 0 },
+        rotation: { x: -20, y: -37, z: 180 },
+        origin: { x: 0.5, y: 0.5, z: 0.5 },
+        scale: 1.1
+    },
+    tpHandTransform: {
+        translation: { x: -0.8, y: -1, z: -1.1 },
+        rotation: { x: 0, y: 0, z: 0 },
+        scale: 0.58
+    },
+    groundTransform: {
+        translation: { x: 0, y: 0, z: 0 },
+        rotation: { x: 0, y: 33, z: 0 },
+        origin: { x: 0.5, y: 0, z: 0.5 },
+        scale: 3
+    }
+}

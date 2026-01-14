@@ -13,9 +13,9 @@ public class BlockBehaviorPipeSprinkler(Block block) : BlockBehavior(block)
 
     static BlockBehaviorPipeSprinkler()
     {
-        particleProps.MinSize = 0.2f;
-        particleProps.MaxSize = 0.25f;
-        particleProps.ParticleModel = EnumParticleModel.Quad;
+        particleProps.MinSize = 0.5f;
+        particleProps.MaxSize = 0.75f;
+        particleProps.ParticleModel = EnumParticleModel.Cube;
         particleProps.ClimateColorMap = "climateWaterTint";
         particleProps.LifeLength = 0.4f;
         particleProps.addLifeLength = 0f;

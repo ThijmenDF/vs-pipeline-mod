@@ -1,0 +1,53 @@
+[
+    {
+        ingredientPattern: "HSF,GNA,PRP",
+        width: 3,
+        height: 3,
+        ingredients: {
+            H: {
+                type: "item",
+                code: "game:hammer-*",
+                isTool: true,
+                toolDurabilityCost: 60,
+            },
+            S: {
+                type: "item",
+                code: "game:saw-*",
+                isTool: true,
+                toolDurabilityCost: 60,
+            },
+            F: {
+                type: "item",
+                code: "game:fat",
+                quantity: 4,
+            },
+            G: {
+                type: "block",
+                code: "game:angledgears-*",
+            },
+            N: {
+                type: "item",
+                code: "game:metalnailsandstrips-*",
+                quantity: 2,
+            },
+            A: {
+                type: "block",
+                code: "game:woodenaxle-*",
+            },
+            P: {
+                type: "item",
+                code: "game:plank-*",
+                quantity: 10,
+            },
+            R: {
+                type: "item",
+                code: "game:resin",
+                quantity: 2,
+            }
+        },
+        output: {
+            type: "item",
+            code: "pipelinemod:pipepumpengine-partial"
+        }
+    },
+]

@@ -34,7 +34,7 @@ public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBa
     public void MarkTickComplete()
     {
         var wasProvided = isProvided;
-        isProvided = currentBuffer >= 0.05f;
+        isProvided = currentBuffer >= minFluidPerSecond;
         if (wasProvided != isProvided)
             MarkDirty();
 
@@ -42,7 +42,7 @@ public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBa
     }
 
     // Sprinklers can be either direction based on the actual block.
-    public BlockFacing GetInputSide() => (Block as BlockPipeSprinkler)!.GetConnectableFacings()[0];
+    public BlockFacing GetInputSide() => inputFace;
 
     private bool isProvided;
     
@@ -51,6 +51,16 @@ public class BEBehaviorPipeSprinkler(BlockEntity blockentity) : BEBehaviorPipeBa
      */
     public bool ShouldBeActive() => isProvided;
 
+    private float minFluidPerSecond = 1f;
+    private BlockFacing inputFace = BlockFacing.UP;
+
+    public override void Initialize(ICoreAPI api, JsonObject properties)
+    {
+        base.Initialize(api, properties);
+
+        minFluidPerSecond = (Block as BlockPipeSprinkler)!.minFluidPerSecond;
+        inputFace = (Block as BlockPipeSprinkler)!.GetConnectableFacings()[0];
+    }
 
     public void Tick(float delta)
     {
