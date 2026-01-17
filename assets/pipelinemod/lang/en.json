@@ -6,6 +6,8 @@
     "pipelinemod:block-pipesprinkler-up": "Water sprinkler",
     "pipelinemod:block-pipemold-fired-plate": "Pipe mold",
     "pipelinemod:item-pipeshaper": "Pipe shaper",
+    "pipelinemod:item-pipepumpengine-partial": "Fluid pump mechanical part",
+    "pipelinemod:item-pipepumptank-partial": "Fluid pump tank part",
     
     
     // Handbook blocks/items

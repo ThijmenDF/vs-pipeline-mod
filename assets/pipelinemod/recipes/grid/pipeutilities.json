@@ -1,0 +1,12 @@
+[
+    {
+        ingredientPattern: "",
+        width: 2,
+        height: 2,
+        ingredients: {},
+        output: {
+            type: "block",
+            code: "pipelinemod:pipeinlet"
+        }
+    }
+]

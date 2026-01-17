@@ -50,4 +50,70 @@
             code: "pipelinemod:pipepumpengine-partial"
         }
     },
+    {
+        ingredientPattern: "HLS,PFP,WLW",
+        width: 3,
+        height: 3,
+        ingredients: {
+            H: {
+                type: "item",
+                code: "game:hammer-*",
+                isTool: true,
+                toolDurabilityCost: 60,
+            },
+            S: {
+                type: "item",
+                code: "game:saw-*",
+                isTool: true,
+                toolDurabilityCost: 60,
+            },
+            F: {
+                type: "item",
+                code: "game:fat",
+                quantity: 2,
+            },
+            W: {
+                type: "item",
+                code: "game:plank-*",
+                quantity: 10,
+            },
+            P: {
+                type: "block",
+                code: "pipelinemod:pipesegment-lead",
+            },
+            L: {
+                type: "item",
+                code: "game:metalplate-lead"
+            }
+        },
+        output: {
+            type: "item",
+            code: "pipelinemod:pipepumptank-partial"
+        }
+    },
+    {
+        ingredientPattern: "H_,ET",
+        width: 2,
+        height: 2,
+        ingredients: {
+            H: {
+                type: "item",
+                code: "game:hammer-*",
+                isTool: true,
+                toolDurabilityCost: 20,
+            },
+            "E": {
+                type: "item",
+                code: "pipelinemod:pipepumpengine-partial",
+            },
+            T: {
+                type: "item",
+                code: "pipelinemod:pipepumptank-partial",
+            }
+        },
+        output: {
+            type: "block",
+            code: "pipelinemod:pipepump-north"
+        }
+    }
 ]

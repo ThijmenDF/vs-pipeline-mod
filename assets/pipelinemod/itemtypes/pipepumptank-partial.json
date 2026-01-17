@@ -3,5 +3,28 @@
     shape: {
         base: "pipelinemod:pump/pump2-tank"
     },
-    maxstacksize: 1
+    maxstacksize: 1,
+    attributes: {
+        handbook: {
+            include: true,
+        }
+    },
+    guiTransform: {
+        translation: { x: 3, y: -2, z: 0 },
+        rotation: { x: -20, y: -37, z: 180 },
+        origin: { x: 0.5, y: 0.5, z: 0.5 },
+        scale: 1.1
+    },
+    tpHandTransform: {
+        translation: { x: -0.9, y: -0.75, z: -1.8 },
+        rotation: { x: 99, y: -3, z: 3 },
+        origin: { x: 0.5, y: 0.5, z: 1 },
+        scale: 0.58
+    },
+    groundTransform: {
+        translation: { x: 0, y: 0, z: 0 },
+        rotation: { x: 0, y: 33, z: 0 },
+        origin: { x: 0.5, y: 0, z: 0.5 },
+        scale: 3
+    }
 }

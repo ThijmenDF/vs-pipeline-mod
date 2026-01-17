@@ -4,7 +4,11 @@
         base: "pipelinemod:pump/pump2-engine"
     },
     maxstacksize: 1,
-    
+    attributes: {
+        handbook: {
+            include: true,
+        }
+    },
     guiTransform: {
         translation: { x: 3, y: -2, z: 0 },
         rotation: { x: -20, y: -37, z: 180 },
@@ -12,7 +16,7 @@
         scale: 1.1
     },
     tpHandTransform: {
-        translation: { x: -0.8, y: -1, z: -1.1 },
+        translation: { x: -1, y: -1, z: -1.1 },
         rotation: { x: 0, y: 0, z: 0 },
         scale: 0.58
     },

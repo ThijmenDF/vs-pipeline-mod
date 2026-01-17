@@ -1,0 +1,49 @@
+[
+    {
+        ingredientPattern: "_P_,PSP,_P_",
+        width: 3,
+        height: 3,
+        ingredients: {
+            P: {
+                type: "item",
+                code: "game:plank-*",
+                quantity: 2,
+            },
+            S: {
+                type: "block",
+                code: "game:sand-*"
+            }
+        },
+        output: {
+            type: "block",
+            code: "pipelinemod:pipemold-fired-plate"
+        }
+    },
+    {
+        ingredientPattern: "KS,L_",
+        width: 2,
+        height: 2,
+        ingredients: {
+            K: {
+                type: "item",
+                code: "game:knife-generic-*",
+                isTool: true,
+                toolDurability: 5,
+            },
+            S: {
+                type: "item",
+                code: "game:saw-*",
+                isTool: true,
+                toolDurabilityCost: 5,
+            },
+            L: {
+                type: "block",
+                code: "game:log-placed-*-ud"
+            }
+        },
+        output: {
+            type: "item",
+            code: "pipelinemod:pipeshaper"
+        }
+    }
+]
