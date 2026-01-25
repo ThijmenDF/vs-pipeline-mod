@@ -27,8 +27,6 @@
         }
     },
     lightAbsorption: 1,
-    // Only absorb *some* light
-    //  faceCullMode: "nevercull",
     sideSolidOpaqueAo: {
         all: false
     },

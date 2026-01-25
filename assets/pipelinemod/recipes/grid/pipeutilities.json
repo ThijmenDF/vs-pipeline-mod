@@ -1,9 +1,25 @@
 [
     {
-        ingredientPattern: "",
+        ingredientPattern: "PW,G_",
         width: 2,
         height: 2,
-        ingredients: {},
+        ingredients: {
+            P: {
+                type: "block",
+                code: "pipelinemod:pipesegment-lead",
+            },
+            W: {
+                type: "item",
+                code: "game:wrench-*",
+                isTool: true,
+                toolDurabilityCost: 4,
+            },
+            G: {
+                // todo: grate
+                type: "item",
+                code: "pipelinemod:pipesegment-lead",
+            }
+        },
         output: {
             type: "block",
             code: "pipelinemod:pipeinlet"
